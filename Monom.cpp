@@ -27,81 +27,315 @@ void circlelist::Monom::MAKENULL()
     }
 }
 
-circlelist::Monom & circlelist::Monom::INTERSECTION(const Monom & m1, const Monom & m2)
+circlelist::Monom & circlelist::Monom::DIFFERENCE(const Monom & m1, const Monom & m2)
 {
-    if(&empty_monom == this)
+    if(&empty_monom == this)//Если пытаемся вызвать на фейковом элементе, то возвращаем фейковый элемент
         return empty_monom;
-    if(_tail != nullptr)
+    if(_tail != nullptr)//Если множество на котором вызываем не пустое, то чистим его
     {
         _tail = deleteList(_tail);
     }
-    if(m1._tail == nullptr || m2._tail == nullptr)
+    if(&m1 == &m2)//Если множества равны, то возвращаем пустое множество
         return *this;
-    //same
+    if(m1._tail == nullptr) //Если первое множество пустое, то возвращаем пустое множество
+        return *this;
+    if(m2._tail == nullptr) //Если второе множество пустое, то возвращаем первое множество
+    {
+        _tail = new node(m1._tail -> data, nullptr);
+        _tail = copyMonom(_tail, m1._tail);
+        return *this;
+    }
+    node * temp = m1._tail -> next;
+    node * temp2 = m2._tail -> next;
+    while (temp != m1._tail && temp2 != m2._tail && (temp -> data < m2._tail -> data) && (temp -> data < m1._tail -> data))
+    {
+        if(temp -> data < temp2 -> data)
+        {
+            if(_tail == nullptr)
+            {
+                _tail = new node();
+                _tail -> data = temp -> data;
+            } else
+            {
+                _tail = addToEnd(temp -> data, _tail);
+            }
+            temp = temp -> next;
+            continue;
+        }
+        if(temp -> data > temp2 -> data)
+        {
+            temp2 = temp2 -> next;
+            continue;
+        }
+        temp = temp -> next;
+        temp2 = temp2 -> next;
+    }
+    if(temp == m1._tail && temp2 == m2._tail)
+    {
+        if(temp -> data != temp2 -> data)
+        {
+            if(_tail == nullptr)
+            {
+                _tail = new node();
+                _tail -> data = temp -> data;
+            } else
+            {
+                _tail = addToEnd(temp -> data, _tail);
+            }
+        }
+        return *this;
+    }
+    if(temp == m1._tail && (temp2 -> data < temp -> data))
+    {
+        while (temp2 != m2._tail && temp -> data > temp2 -> data)
+        {
+            if(temp -> data != temp2 -> data)
+            {
+                if(_tail == nullptr)
+                {
+                    _tail = new node();
+                    _tail -> data = temp -> data;
+                } else
+                {
+                    _tail = addToEnd(temp -> data, _tail);
+                }
+                return *this;
+            }
+        }
+        if(temp -> data == temp2 -> data)
+        {
+            if(_tail == nullptr)
+            {
+                _tail = new node();
+                _tail -> data = temp -> data;
+            } else
+            {
+                _tail = addToEnd(temp -> data, _tail);
+            }
+        }
+        return *this;
+    }
 }
 
-circlelist::Monom & circlelist::Monom::UNION(const Monom & m1, const Monom & m2)
+circlelist::Monom & circlelist::Monom::INTERSECTION(const Monom & m1, const Monom & m2)
 {
-    if(&empty_monom == this)
+    if(&empty_monom == this) //Если пытаемся вызвать на фейковом элементе, то возвращаем фейковый элемент
         return empty_monom;
-    if(_tail != nullptr)
+    if(_tail != nullptr) //Если множество на котором вызываем не пустое, то чистим его
     {
         _tail = deleteList(_tail);
     }
-    if(m1._tail == nullptr && m2._tail != nullptr)
-    {
-        _tail = copyMonom(_tail, m2._tail);
+    if(m1._tail == nullptr || m2._tail == nullptr) //Если одно из множеств пустое, то возвращаем пустое множество
         return *this;
-    }
-    if(m2._tail == nullptr && m1._tail != nullptr)
+    if(m1._tail == m2._tail) //Если производим самоприсваивание, то возвращаем одно из можеств
     {
         _tail = copyMonom(_tail, m1._tail);
         return *this;
     }
-    //стоит ли делать проверку на пустоту двух множеств?
-    _tail = copyMonom(_tail, m2._tail);
     node * temp = m1._tail -> next;
-    node * temp2 = _tail -> next;
-    //проверить с хвостами!
-    while (temp != m1._tail)
+    node * temp2 = m2._tail -> next;
+    if(m1._tail -> next -> data > m2._tail -> data)
+        return *this;
+    while(temp != m1._tail && (temp -> data <= m2._tail -> data) && (temp2 -> data <= m1._tail -> data) && temp2 != m2._tail)
     {
-        temp2 = _tail -> next;
-        while (temp2 != _tail)
+        if(temp -> data > temp2 -> data)
         {
-            if( (temp -> data > temp2 -> data) && (temp -> data < temp2 -> next -> data) )
+            temp2 = temp2 -> next;
+            continue;
+        }
+        if(temp -> data < temp2 -> data)
+        {
+            temp = temp -> next;
+            continue;
+        }
+        if(_tail == nullptr)
+        {
+            _tail = new node();
+            _tail -> data = temp -> data;
+        } else
+        {
+            _tail = addToEnd(temp -> data, _tail);
+        }
+        temp2 = temp2 -> next;
+        temp = temp -> next;
+    }
+    if(temp == m1._tail && temp2 == m2._tail)
+    {
+        if(temp -> data == temp2 -> data)
+        {
+            if(_tail == nullptr)
             {
-                //вставка
-                break;
-            } else if( (temp -> data < temp2 -> data) )
+                _tail = new node();
+                _tail -> data = temp -> data;
+            } else
             {
-                //ВСТАВКА В ЕНАЧАЛО
-                break;
+                _tail = addToEnd(temp -> data, _tail);
+            }
+        }
+        return *this;
+    }
+    if(temp == m1._tail && (temp2 -> data <= temp -> data))
+    {
+        while (temp2 != m2._tail && temp -> data <= temp2 -> data)
+        {
+            if(temp -> data == temp2 -> data)
+            {
+                if(_tail == nullptr)
+                {
+                    _tail = new node();
+                    _tail -> data = temp -> data;
+                } else
+                {
+                    _tail = addToEnd(temp -> data, _tail);
+                }
+                return *this;
             }
             temp2 = temp2 -> next;
         }
-        if(temp -> data > temp2 -> data)
+        if(temp -> data == temp2 -> data)
         {
-            //ВСТАВКА В КОНЕЦ
+            if(_tail == nullptr)
+            {
+                _tail = new node();
+                _tail -> data = temp -> data;
+            } else
+            {
+                _tail = addToEnd(temp -> data, _tail);
+            }
+        }
+        return *this;
+    }
+    if(temp2 == m2._tail && (temp -> data <= temp2 -> data))
+    {
+        while (temp != m1._tail && temp2 -> data <= temp -> data)
+        {
+            if(temp -> data == temp2 -> data)
+            {
+                if(_tail == nullptr)
+                {
+                    _tail = new node();
+                    _tail -> data = temp -> data;
+                } else
+                {
+                    _tail = addToEnd(temp -> data, _tail);
+                }
+                return *this;
+            }
+            temp = temp -> next;
+        }
+        if(temp -> data == temp2 -> data)
+        {
+            if(_tail == nullptr)
+            {
+                _tail = new node();
+                _tail -> data = temp -> data;
+            } else
+            {
+                _tail = addToEnd(temp -> data, _tail);
+            }
+        }
+        return *this;
+    }
+
+    return *this;
+}
+
+circlelist::Monom & circlelist::Monom::UNION(const Monom & m1, const Monom & m2)
+{
+    if(&empty_monom == this)//Если пытаемся вызвать на фейковом элементе, то возвращаем фейковый элемент
+        return empty_monom;
+    if(_tail != nullptr)//Если множество на котором вызываем не пустое, то чистим его
+    {
+        _tail = deleteList(_tail);
+    }
+    if(m2._tail == nullptr)//Если второе множество пустое, то возвращаем первое множество
+    {
+        _tail = copyMonom(_tail, m1._tail);
+        return *this;
+    }
+    if(m1._tail == nullptr)//Если первое множество пустое, то возвращаем второе множество
+    {
+        _tail = copyMonom(_tail, m2._tail);
+        return *this;
+    }
+    if(&m1 == &m2)//Если множества равны, то возвращаем первое множество
+    {
+        _tail = copyMonom(_tail, m1._tail);
+        return *this;
+    }
+    if(m1._tail -> next -> data > m2._tail -> data)
+    {
+        _tail = copyMonom(_tail, m2._tail);
+        _tail = addToMonom(_tail, m1._tail);
+        return *this;
+    }
+    if(m2._tail -> next -> data > m1._tail -> data)
+    {
+        _tail = copyMonom(_tail, m1._tail);
+        _tail = addToMonom(_tail, m2._tail);
+        return *this;
+    }
+    _tail = copyMonom(_tail, m1._tail);
+    node * temp = m2._tail -> next;
+    node * temp_r = _tail -> next;
+    node * next;
+    while (temp != m2._tail)
+    {
+        if(temp -> data > _tail -> data)
+        {
+            //Добавляем в конец(temp_r)
+            _tail = addToEnd(temp -> data, _tail);
+            temp = temp -> next;
+            continue;
+        }
+        if(temp -> data < _tail -> next -> data)
+        {
+            //добавляем в начало(temp_r)
+            next = _tail -> next;
+            _tail -> next = new node(temp -> data, next);
+            temp = temp -> next;
+            continue;
+        }
+        while (temp_r != _tail) //НАДО ЛИ ВЫНОСИТЬ В ОТДЕЛЬНУЮ ФУНКЦИЮ?
+        {
+            if(temp -> data == temp_r -> data)
+                break;
+            if( (temp -> data > temp_r -> data) && (temp -> data < temp_r -> next -> data) )
+            {
+                next = temp_r -> next;
+                temp_r -> next = new node(temp -> data, next);
+                break;
+            }
+            temp_r = temp_r -> next;
         }
         temp = temp -> next;
     }
-    while (temp2 != _tail)
+    if(temp -> data > _tail -> data)
     {
-        if( (temp -> data > temp2 -> data) && (temp -> data < temp2 -> next -> data) )
-        {
-            //вставка
+        //Добавляем в конец(temp_r)
+        _tail = addToEnd(temp -> data, _tail);
+        temp = temp -> next;
+    }
+    if(temp -> data < _tail -> next -> data)
+    {
+        //добавляем в начало(temp_r)
+        next = _tail -> next;
+        _tail -> next = new node(temp -> data, next);
+        temp = temp -> next;
+    }
+    while (temp_r != _tail)
+    {
+        if(temp -> data == temp_r -> data)
             break;
-        } else if( (temp -> data < temp2 -> data) )
+        if( (temp -> data > temp_r -> data) && (temp -> data < temp_r -> next -> data) )
         {
-            //ВСТАВКА В ЕНАЧАЛО
+            next = temp_r -> next;
+            temp_r -> next = new node(temp -> data, next);
             break;
         }
-        temp2 = temp2 -> next;
+        temp_r = temp_r -> next;
     }
-    if(temp -> data > temp2 -> data)
-    {
-        //ВСТАВКА В КОНЕЦ
-    }
+
     return *this;
     /*copy monom start*/
     /*copy monom end*/
@@ -260,7 +494,7 @@ void circlelist::Monom::DELETE(elem_t x)
 {
     if(&empty_monom == this)
         return;
-    _tail = deleteList(_tail);
+    _tail = deleteEL(_tail, x);
 }
 
 circlelist::Monom & circlelist::Monom::ASSIGN(const Monom & m)
@@ -306,6 +540,8 @@ bool circlelist::Monom::REPEAT(const Monom & m) const
 
 circlelist::Monom & circlelist::Monom::MERGE(const Monom & m1, const Monom & m2)
 {
+    if(&empty_monom == this)//Если пытаемся вызвать на фейковом элементе, то возвращаем фейковый элемент
+        return empty_monom;
     if(_tail != nullptr)
     {
         _tail = deleteList(_tail);
@@ -334,6 +570,21 @@ circlelist::Monom & circlelist::Monom::MERGE(const Monom & m1, const Monom & m2)
 }
 
 /*private functions*/
+
+circlelist::node * circlelist::Monom::addToMonom(node * l_el, node * tail)
+{
+    node * temp = tail -> next;
+    node * l_temp = l_el;
+    while (temp != tail)
+    {
+        l_temp -> next = new node(temp -> data, l_temp -> next);
+        l_temp = l_temp -> next;
+        temp = temp -> next;
+    }
+    l_temp -> next = new node(tail -> data, l_temp -> next);
+    l_temp = l_temp -> next;
+    return l_temp;
+}
 
 circlelist::node * circlelist::Monom::deleteEL(node * tail, elem_t x)
 {
@@ -373,6 +624,13 @@ circlelist::node * circlelist::Monom::deleteEL(node * tail, elem_t x)
     prev -> next = cur -> next;
     delete cur;
     return tail;
+}
+
+circlelist::node * circlelist::Monom::addToEnd(elem_t data, node * tail)
+{
+    node * next = new node(data, tail -> next);
+    tail -> next = next;
+    return next;
 }
 
 circlelist::node * circlelist::Monom::findPrevEl(elem_t x, node * tail) const
@@ -451,7 +709,7 @@ slinkedlist::Monom & slinkedlist::Monom::INTERSECTION(const Monom & m1, const Mo
     }
     if(m1._head == nullptr || m2._head == nullptr) //Если одно из множеств пустое, то возвращаем пустое множество
         return *this;
-    if(m1._head == m2._head) //Если множества равны, то возвращаем одно из можеств
+    if(&m1 == &m2) //Если множества равны, то возвращаем одно из можеств
     {
         _head = new node(m1._head -> data, nullptr);
         addMonom(_head, m1._head -> next);
@@ -504,6 +762,8 @@ slinkedlist::Monom & slinkedlist::Monom::DIFFERENCE(const Monom & m1, const Mono
         addMonom(_head, m1._head -> next);
         return *this;
     }
+    if(equal(m1._head, m2._head))
+        return *this;
     node * temp = m2._head;
     _head = new node(m1._head -> data, nullptr);//Копируем множество m1 в текущее
     addMonom(_head, m1._head -> next);//Копируем множество m1 в текущее
@@ -533,7 +793,9 @@ slinkedlist::Monom & slinkedlist::Monom::UNION(const Monom & m1, const Monom & m
     {
         _head = deleteList(_head);
     }
-    if(m2._head == nullptr)//Если второе множество пустое, то возвращаем первое множество
+    if(m1._head == nullptr && m2._head == nullptr)
+        return *this;
+    if(m2._head == nullptr || &m1 == &m2)//Если второе множество пустое или они равны, то возвращаем первое множество
     {
         _head = new node(m1._head -> data, nullptr);
         addMonom(_head, m1._head -> next);
@@ -545,7 +807,7 @@ slinkedlist::Monom & slinkedlist::Monom::UNION(const Monom & m1, const Monom & m
         addMonom(_head, m2._head -> next);
         return *this;
     }
-    if(&m1 == &m2)//Если множества равны, то возвращаем первое множество
+    if(equal(m1._head, m2._head)) //Если мн-ва равны, то возвращаем первое множество
     {
         _head = new node(m1._head -> data, nullptr);
         addMonom(_head, m1._head -> next);
@@ -606,7 +868,7 @@ slinkedlist::Monom & slinkedlist::Monom::ASSIGN(const Monom & m)
 {
     if(&fake_monom == this)//Если пытаемся вызвать на фейковом элементе, то возвращаем фейковый элемент
         return fake_monom;
-    if(_head == m._head) //Если происходит самоприсваивание
+    if(this == &m) //Если происходит самоприсваивание
     {
         return *this;
     }
@@ -632,7 +894,7 @@ bool slinkedlist::Monom::REPEAT(const Monom & m) const
     node * temp = _head;
     while(temp != nullptr)
     {
-        if(temp -> data == m._head -> data) //Сравниваем текщее значение с головным значением мн-ва
+        if(temp -> data == m._head -> data) //Сравниваем текщее значение с головным значение
             return true;
         if(findPrevEl(temp -> data, m._head)) //Поиск по значению, если нашли текущий элемент в мн-ве, true
             return true;
@@ -643,20 +905,7 @@ bool slinkedlist::Monom::REPEAT(const Monom & m) const
 
 bool slinkedlist::Monom::EQUAL(const Monom & m2) const
 {
-    if(_head == nullptr || m2._head == nullptr)
-        return false;
-    if(_head -> data != m2._head -> data)
-        return false;
-    node * temp = _head -> next;
-    node * temp2 = m2._head -> next;
-    while (temp != nullptr && temp2 != nullptr)
-    {
-        if(temp -> data != temp2 -> data)
-            return false;
-        temp = temp -> next;
-        temp2 = temp2 -> next;
-    }
-    return !(temp != nullptr || temp2 != nullptr);
+    return equal(_head, m2._head);
 }
 
 slinkedlist::elem_t slinkedlist::Monom::MIN() const
@@ -737,6 +986,24 @@ void slinkedlist::Monom::PRINT() const
         std::cout << std::setw(25) << temp -> data << std::endl;
         temp = temp -> next;
     }
+}
+
+bool slinkedlist::Monom::equal(node * head, node * m2_head) const
+{
+    if(head == nullptr || m2_head == nullptr)
+        return false;
+    if(head -> data != m2_head -> data)
+        return false;
+    node * temp = head -> next;
+    node * temp2 = m2_head -> next;
+    while (temp != nullptr && temp2 != nullptr)
+    {
+        if(temp -> data != temp2 -> data)
+            return false;
+        temp = temp -> next;
+        temp2 = temp2 -> next;
+    }
+    return !(temp != nullptr || temp2 != nullptr);
 }
 
 slinkedlist::node * slinkedlist::Monom::deleteEl(node * head, node * prev)

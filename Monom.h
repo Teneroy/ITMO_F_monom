@@ -51,7 +51,8 @@ namespace circlelist
         node * copyMonom(node * t1, node * t2); //Копировать множество t1 в t2
         node * findPrevEl(elem_t x, node * tail) const; //Функция поиска по значению, возвращает предыдущий элемент
         node * deleteEL(node * tail, elem_t x);
-        //get prev el
+        node * addToMonom(node * l_el, node * tail);
+        node * addToEnd(elem_t data, node * tail);
     };
 }
 
@@ -101,6 +102,7 @@ namespace slinkedlist
         node * deleteHead(node * head); //Удалить голову
         node * findPrevEl(elem_t x, node * head) const; //Функция поиска элемента по значению, вернет предыдущий элемент
         node * get_last_el(node * head) const; //Получить последний элемент списка
+        bool equal(node * head, node * m2_head) const;
     };
 }
 
