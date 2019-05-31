@@ -53,6 +53,7 @@ namespace circlelist
         node * deleteEL(node * tail, elem_t x); //Удаление эл-та x из мн-ва
         node * addToMonom(node * l_el, node * tail); //Добавление одного мн-ва к другому
         node * addToEnd(elem_t data, node * tail); //Добавить эл-т data в конец мн-ва
+        bool equal(node * tail, node * m2_tail) const; //Эквивалентность множеств
     };
 }
 

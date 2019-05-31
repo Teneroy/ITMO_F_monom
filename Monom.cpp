@@ -45,9 +45,13 @@ circlelist::Monom & circlelist::Monom::DIFFERENCE(const Monom & m1, const Monom 
         _tail = copyMonom(_tail, m1._tail);
         return *this;
     }
+    if(equal(m1._tail, m2._tail))
+    {
+        return *this;
+    }
     node * temp = m1._tail -> next;
     node * temp2 = m2._tail -> next;
-    while (temp != m1._tail && temp2 != m2._tail && (temp -> data < m2._tail -> data) && (temp -> data < m1._tail -> data))
+    while (temp != m1._tail && temp2 != m2._tail && (temp -> data < m2._tail -> data) && (temp2 -> data < m1._tail -> data))
     {
         if(temp -> data < temp2 -> data)
         {
@@ -115,6 +119,38 @@ circlelist::Monom & circlelist::Monom::DIFFERENCE(const Monom & m1, const Monom 
         }
         return *this;
     }
+    if(temp -> data > m2._tail -> data)
+    {
+        _tail = addToMonom(temp, _tail);
+        return *this;
+    }
+    if(temp2 == m2._tail && temp -> data < temp2 -> data)
+    {
+        while (temp != m1._tail)
+        {
+            if(temp -> data != temp2 -> data)
+            {
+                if(_tail == nullptr)
+                {
+                    _tail = new node();
+                    _tail -> data = temp -> data;
+                } else
+                {
+                    _tail = addToEnd(temp -> data, _tail);
+                }
+            }
+            temp = temp -> next;
+        }
+        if(_tail == nullptr)
+        {
+            _tail = new node();
+            _tail -> data = temp -> data;
+        } else
+        {
+            _tail = addToEnd(temp -> data, _tail);
+        }
+    }
+    return *this;
 }
 
 circlelist::Monom & circlelist::Monom::INTERSECTION(const Monom & m1, const Monom & m2)
@@ -127,7 +163,12 @@ circlelist::Monom & circlelist::Monom::INTERSECTION(const Monom & m1, const Mono
     }
     if(m1._tail == nullptr || m2._tail == nullptr) //Если одно из множеств пустое, то возвращаем пустое множество
         return *this;
-    if(m1._tail == m2._tail) //Если производим самоприсваивание, то возвращаем одно из можеств
+    if(&m1 == &m2) //Если мн-ва равны, то возвращаем одно из можеств
+    {
+        _tail = copyMonom(_tail, m1._tail);
+        return *this;
+    }
+    if(equal(m1._tail, m2._tail))
     {
         _tail = copyMonom(_tail, m1._tail);
         return *this;
@@ -178,7 +219,7 @@ circlelist::Monom & circlelist::Monom::INTERSECTION(const Monom & m1, const Mono
     }
     if(temp == m1._tail && (temp2 -> data <= temp -> data)) //Если дошли до конца первого мн-ва и указатель на эл-т второго мн-ва не больше хвоста первого
     {
-        while (temp2 != m2._tail && temp -> data <= temp2 -> data) //Идем по второму мн-ву, проверяя эл-ты на соответствие с хвостом первого
+        while (temp2 != m2._tail && temp -> data >= temp2 -> data) //Идем по второму мн-ву, проверяя эл-ты на соответствие с хвостом первого
         {
             if(temp -> data == temp2 -> data)
             {
@@ -209,7 +250,7 @@ circlelist::Monom & circlelist::Monom::INTERSECTION(const Monom & m1, const Mono
     }
     if(temp2 == m2._tail && (temp -> data <= temp2 -> data)) //Если дошли до конца второго мн-ва и указатель на эл-т первогшо мн-ва не больше хвоста второго
     {
-        while (temp != m1._tail && temp2 -> data <= temp -> data)
+        while (temp != m1._tail && temp2 -> data >= temp -> data)//Идем по второму мн-ву, проверяя эл-ты на соответствие с хвостом первого
         {
             if(temp -> data == temp2 -> data)
             {
@@ -225,7 +266,7 @@ circlelist::Monom & circlelist::Monom::INTERSECTION(const Monom & m1, const Mono
             }
             temp = temp -> next;
         }
-        if(temp -> data == temp2 -> data)
+        if(temp -> data == temp2 -> data)//Если хвосты равны, то добавляем эл-т
         {
             if(_tail == nullptr)
             {
@@ -425,17 +466,24 @@ void circlelist::Monom::PRINT() const
 
 bool circlelist::Monom::EQUAL(const Monom & m2) const
 {
-    if(_tail == nullptr || m2._tail == nullptr)
+    if(this == &m2)
+        return true;
+    return equal(_tail, m2._tail);
+}
+
+bool circlelist::Monom::equal(node * tail, node * m2_tail) const
+{
+    if(tail == nullptr || m2_tail == nullptr)
     {
         return false;
     }
-    if(_tail -> data != m2._tail -> data)
+    if(tail -> data != m2_tail -> data)
     {
         return false;
     }
-    node * temp1 = _tail -> next;
-    node * temp2 = m2._tail -> next;
-    while(temp1 != _tail && temp2 != m2._tail)
+    node * temp1 = tail -> next;
+    node * temp2 = m2_tail -> next;
+    while(temp1 != tail && temp2 != m2_tail)
     {
         if(temp1 -> data != temp2 -> data)
         {
@@ -444,7 +492,7 @@ bool circlelist::Monom::EQUAL(const Monom & m2) const
         temp1 = temp1 -> next;
         temp2 = temp2 -> next;
     }
-    return !(temp1 != _tail || temp2 != m2._tail);
+    return !(temp1 != tail || temp2 != m2_tail);
 }
 
 circlelist::Monom & circlelist::Monom::FIND(elem_t x, Monom & m2)
@@ -617,9 +665,9 @@ circlelist::node * circlelist::Monom::deleteEL(node * tail, elem_t x)
         return tail;
     }
     prev = findPrevEl(x, _tail);
-    cur = prev -> next;
     if(prev == nullptr)
         return tail;
+    cur = prev -> next;
     prev -> next = cur -> next;
     delete cur;
     return tail;
@@ -708,7 +756,13 @@ slinkedlist::Monom & slinkedlist::Monom::INTERSECTION(const Monom & m1, const Mo
     }
     if(m1._head == nullptr || m2._head == nullptr) //Если одно из множеств пустое, то возвращаем пустое множество
         return *this;
-    if(&m1 == &m2) //Если множества равны, то возвращаем одно из можеств
+    if(&m1 == &m2) //Если мн-ва равны, то возвращаем одно из можеств
+    {
+        _head = new node(m1._head -> data, nullptr);
+        addMonom(_head, m1._head -> next);
+        return *this;
+    }
+    if(equal(m1._head, m2._head))//Если мн-ва равны, то возвращаем одно из можеств
     {
         _head = new node(m1._head -> data, nullptr);
         addMonom(_head, m1._head -> next);
@@ -911,6 +965,8 @@ bool slinkedlist::Monom::REPEAT(const Monom & m) const
 
 bool slinkedlist::Monom::EQUAL(const Monom & m2) const
 {
+    if(this == &m2)
+        return true;
     return equal(_head, m2._head);
 }
 
