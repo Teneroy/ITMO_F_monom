@@ -30,29 +30,29 @@ namespace circlelist
     public:
         Monom();
         ~Monom();
-        Monom & UNION(const Monom & m1, const Monom & m2); //дописать
-        Monom & INTERSECTION(const Monom & m1, const Monom & m2); //дописать
-        Monom & DIFFERENCE(const Monom & m1, const Monom & m2); //дописать
-        Monom & MERGE(const Monom & m1, const Monom & m2); //дописать
-        Monom & FIND(elem_t x, Monom & m2);
-        void MAKENULL();
-        void INSERT(elem_t x);
-        void DELETE(elem_t x);
-        elem_t MIN() const;
-        elem_t MAX() const;
-        bool EQUAL(const Monom & m2) const;
-        Monom & ASSIGN(const Monom & m);
-        bool EMPTY() const; //в случае вызова мин макс поальзователь проверяет
-        bool REPEAT(const Monom & m) const; //Если одно из множеств пустое вернууть истина
+        Monom & UNION(const Monom & m1, const Monom & m2); //Объединение мн-в(C = UNION(A,B))
+        Monom & INTERSECTION(const Monom & m1, const Monom & m2); //Пересечение мн-в(C = INTERSECTION(A,B))
+        Monom & DIFFERENCE(const Monom & m1, const Monom & m2); //Разность мн-в(C = DIFFERENCE(A,B))
+        Monom & MERGE(const Monom & m1, const Monom & m2); //Мердж мн-в(C = MERGE(A,B))
+        Monom & FIND(elem_t x, Monom & m2); // Поиск эл-та в мн-вах A и B, вернет либо A, либо B, либо empty_monom
+        void MAKENULL(); //Очистить мн-во
+        void INSERT(elem_t x); //Вставить x в мн-во
+        void DELETE(elem_t x); //Удалить x из мн-ва
+        elem_t MIN() const; //Получить мин эл-т мн-ва
+        elem_t MAX() const; //Получить макс эл-т мн-ва
+        bool EQUAL(const Monom & m2) const; //Проверка на эквивалентность мн-в(A==B)
+        Monom & ASSIGN(const Monom & m); //Приваивание мн-ва В к А(A=B)
+        bool EMPTY() const; //Проверка на пустоту мн-ва(в случае вызова мин макс поальзователь проверяет на пустоту мн-в)
+        bool REPEAT(const Monom & m) const; //Проверка на пересечение мн-в(Если одно из множеств пустое вернууть истина)
         void PRINT() const;
     private:
         node * _tail;
         node * deleteList(node * tail); //Очистить список
         node * copyMonom(node * t1, node * t2); //Копировать множество t1 в t2
         node * findPrevEl(elem_t x, node * tail) const; //Функция поиска по значению, возвращает предыдущий элемент
-        node * deleteEL(node * tail, elem_t x);
-        node * addToMonom(node * l_el, node * tail);
-        node * addToEnd(elem_t data, node * tail);
+        node * deleteEL(node * tail, elem_t x); //Удаление эл-та x из мн-ва
+        node * addToMonom(node * l_el, node * tail); //Добавление одного мн-ва к другому
+        node * addToEnd(elem_t data, node * tail); //Добавить эл-т data в конец мн-ва
     };
 }
 
@@ -83,7 +83,7 @@ namespace slinkedlist
         Monom & INTERSECTION(const Monom & m1, const Monom & m2);
         Monom & DIFFERENCE(const Monom & m1, const Monom & m2);
         Monom & MERGE(const Monom & m1, const Monom & m2);
-        Monom & FIND(elem_t x, Monom & m2); //Проблема с контролем постоянства
+        Monom & FIND(elem_t x, Monom & m2);
         void MAKENULL();
         void INSERT(elem_t x);
         void DELETE(elem_t x);
@@ -102,7 +102,7 @@ namespace slinkedlist
         node * deleteHead(node * head); //Удалить голову
         node * findPrevEl(elem_t x, node * head) const; //Функция поиска элемента по значению, вернет предыдущий элемент
         node * get_last_el(node * head) const; //Получить последний элемент списка
-        bool equal(node * head, node * m2_head) const;
+        bool equal(node * head, node * m2_head) const; //Эквивалентность множеств
     };
 }
 

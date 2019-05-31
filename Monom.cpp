@@ -134,34 +134,36 @@ circlelist::Monom & circlelist::Monom::INTERSECTION(const Monom & m1, const Mono
     }
     node * temp = m1._tail -> next;
     node * temp2 = m2._tail -> next;
-    if(m1._tail -> next -> data > m2._tail -> data)
-        return *this;
+    if(m1._tail -> next -> data > m2._tail -> data || m2._tail -> next -> data > m1._tail -> data)
+        return *this;//Если значение головы первого больше хвоста второго или наоборот, то мн-ва не пересекаются и смысла идти по ним нет
     while(temp != m1._tail && (temp -> data <= m2._tail -> data) && (temp2 -> data <= m1._tail -> data) && temp2 != m2._tail)
-    {
-        if(temp -> data > temp2 -> data)
+    {//Идем по спискам, пока не дошли до конца одного из них, и значения указателей не больше значений хвостов списков
+        if(temp -> data > temp2 -> data) //Если значение первого указателя больше значения второго, то перверяем следующий эл-т второго мн-ва
         {
             temp2 = temp2 -> next;
             continue;
         }
-        if(temp -> data < temp2 -> data)
+        if(temp -> data < temp2 -> data) //Если значение первого указателя меньше значения второго, то перверяем следующий эл-т первого мн-ва
         {
             temp = temp -> next;
             continue;
         }
-        if(_tail == nullptr)
+        //Если значения совпали:
+        if(_tail == nullptr) //Если мн-во в которое пишем пустое, то создаем новый хвост и добавляем жэл-т
         {
             _tail = new node();
             _tail -> data = temp -> data;
         } else
         {
-            _tail = addToEnd(temp -> data, _tail);
+            _tail = addToEnd(temp -> data, _tail); //Добавляем эл-т в конец мн-ва
         }
         temp2 = temp2 -> next;
         temp = temp -> next;
     }
-    if(temp == m1._tail && temp2 == m2._tail)
+    //Проверка хвостов мн-в
+    if(temp == m1._tail && temp2 == m2._tail) //Если указатели обоих мн-в указывают на последние эл-ты ссписка
     {
-        if(temp -> data == temp2 -> data)
+        if(temp -> data == temp2 -> data) //Если хвосты равны, то добавляем значение во мн-во
         {
             if(_tail == nullptr)
             {
@@ -172,11 +174,11 @@ circlelist::Monom & circlelist::Monom::INTERSECTION(const Monom & m1, const Mono
                 _tail = addToEnd(temp -> data, _tail);
             }
         }
-        return *this;
+        return *this; //Возвращаем мн-во
     }
-    if(temp == m1._tail && (temp2 -> data <= temp -> data))
+    if(temp == m1._tail && (temp2 -> data <= temp -> data)) //Если дошли до конца первого мн-ва и указатель на эл-т второго мн-ва не больше хвоста первого
     {
-        while (temp2 != m2._tail && temp -> data <= temp2 -> data)
+        while (temp2 != m2._tail && temp -> data <= temp2 -> data) //Идем по второму мн-ву, проверяя эл-ты на соответствие с хвостом первого
         {
             if(temp -> data == temp2 -> data)
             {
@@ -192,7 +194,7 @@ circlelist::Monom & circlelist::Monom::INTERSECTION(const Monom & m1, const Mono
             }
             temp2 = temp2 -> next;
         }
-        if(temp -> data == temp2 -> data)
+        if(temp -> data == temp2 -> data) //Если хвосты равны, то добавляем эл-т
         {
             if(_tail == nullptr)
             {
@@ -205,7 +207,7 @@ circlelist::Monom & circlelist::Monom::INTERSECTION(const Monom & m1, const Mono
         }
         return *this;
     }
-    if(temp2 == m2._tail && (temp -> data <= temp2 -> data))
+    if(temp2 == m2._tail && (temp -> data <= temp2 -> data)) //Если дошли до конца второго мн-ва и указатель на эл-т первогшо мн-ва не больше хвоста второго
     {
         while (temp != m1._tail && temp2 -> data <= temp -> data)
         {
@@ -443,9 +445,6 @@ bool circlelist::Monom::EQUAL(const Monom & m2) const
         temp2 = temp2 -> next;
     }
     return !(temp1 != _tail || temp2 != m2._tail);
-//    if(temp1 != _tail || temp2 != m2._tail)
-//        return false;
-//    return true;
 }
 
 circlelist::Monom & circlelist::Monom::FIND(elem_t x, Monom & m2)
@@ -735,8 +734,15 @@ slinkedlist::Monom & slinkedlist::Monom::INTERSECTION(const Monom & m1, const Mo
         {
             if(findPrevEl(temp -> data, m2._head -> next) != nullptr) //Ищем повторяющееся значение во втором множестве, если нашли, добавляем новый элемент
             {
-                l_el -> next = new node(temp -> data, nullptr);
-                l_el = l_el -> next;
+                if(l_el == nullptr) //Если множества в которое мы пишем пустое
+                {
+                    _head = new node(temp -> data, nullptr); //Создаем новую голову
+                    l_el = _head; //Указатель на последний элемент теперь равен голове
+                } else
+                {
+                    l_el -> next = new node(temp -> data, nullptr);
+                    l_el = l_el -> next;
+                }
             }
         }
         temp = temp -> next;
