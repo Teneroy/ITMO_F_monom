@@ -595,23 +595,119 @@ circlelist::Monom & circlelist::Monom::MERGE(const Monom & m1, const Monom & m2)
     }
     node * temp = m1._tail -> next;
     node * temp2 = m2._tail -> next;
-    //проверить с хвостами!
-    while (temp != m1._tail)
+    while(temp != m1._tail && temp2 != m2._tail)
     {
-        while (temp2 != m2._tail)
+        if(temp -> data < temp2 -> data)
         {
-            if( (temp -> data > temp2 -> data) && (temp -> data < temp2 -> next -> data) )
+            if(_tail == nullptr)
             {
-                //вставка
-                break;
-            } else if( (temp -> data > temp2 -> data) )
+                _tail = new node();
+                _tail -> data = temp -> data;
+            } else
             {
-                //ВСТАВКА В ЕНАЧАЛО
-                break;
+                _tail = addToEnd(temp -> data, _tail);
+            }
+            temp = temp -> next;
+        }
+        if(temp -> data > temp2 -> data)
+        {
+            if(_tail == nullptr)
+            {
+                _tail = new node();
+                _tail -> data = temp2 -> data;
+            } else
+            {
+                _tail = addToEnd(temp2 -> data, _tail);
             }
             temp2 = temp2 -> next;
         }
-        temp = temp -> next;
+    }
+
+    if(temp == m1._tail && temp2 == m2._tail)
+    {
+        if(temp -> data < temp2 -> data)
+        {
+            if(_tail == nullptr)
+            {
+                _tail = new node();
+                _tail -> data = temp -> data;
+            } else
+            {
+                _tail = addToEnd(temp -> data, _tail);
+            }
+            _tail = addToEnd(temp2 -> data, _tail);
+        } else
+        {
+            if(_tail == nullptr)
+            {
+                _tail = new node();
+                _tail -> data = temp2 -> data;
+            } else
+            {
+                _tail = addToEnd(temp2 -> data, _tail);
+            }
+            _tail = addToEnd(temp -> data, _tail);
+        }
+    }
+    if(temp == m1._tail && temp2 != m2._tail)
+    {
+        while (temp2 != m2._tail)
+        {
+            if(temp -> data > temp2 -> data && temp -> data < temp2 -> next -> data)
+            {
+                if(_tail == nullptr)
+                {
+                    _tail = new node();
+                    _tail -> data = temp2 -> data;
+                } else
+                {
+                    _tail = addToEnd(temp2 -> data, _tail);
+                }
+                _tail = addToEnd(temp -> data, _tail);
+            } else {
+                if(_tail == nullptr)
+                {
+                    _tail = new node();
+                    _tail -> data = temp2 -> data;
+                } else
+                {
+                    _tail = addToEnd(temp2 -> data, _tail);
+                }
+            }
+            temp2 = temp2 -> next;
+        }
+        _tail = addToEnd(temp2 -> data, _tail);
+        return *this;
+    }
+    if(temp2 == m2._tail && temp != m1._tail)
+    {
+        while (temp != m1._tail)
+        {
+            if(temp2 -> data > temp -> data && temp2 -> data < temp -> next -> data)
+            {
+                if(_tail == nullptr)
+                {
+                    _tail = new node();
+                    _tail -> data = temp -> data;
+                } else
+                {
+                    _tail = addToEnd(temp -> data, _tail);
+                }
+                _tail = addToEnd(temp2 -> data, _tail);
+            } else {
+                if(_tail == nullptr)
+                {
+                    _tail = new node();
+                    _tail -> data = temp -> data;
+                } else
+                {
+                    _tail = addToEnd(temp -> data, _tail);
+                }
+            }
+            temp = temp -> next;
+        }
+        _tail = addToEnd(temp -> data, _tail);
+        return *this;
     }
     return *this;
 }

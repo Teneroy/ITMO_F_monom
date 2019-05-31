@@ -111,21 +111,21 @@ int main()
     Monom B1;
     Monom C1;
     A1.INSERT(1);
-    A1.INSERT(2);
-    A1.INSERT(3);
     A1.INSERT(8);
-    A1.INSERT(11);
-    B1.INSERT(1);
-    B1.INSERT(3);
-    B1.INSERT(5);
-    B1.INSERT(8);
-    B1.INSERT(9);
+    A1.INSERT(9);
+    A1.INSERT(15);
+    A1.INSERT(20);
+    A1.INSERT(30);
+    B1.INSERT(2);
     B1.INSERT(10);
-    B1.INSERT(11);
-    C1.INTERSECTION(A1, B1).PRINT();
-    std::cout << ">" << std::endl;
-    //A.MAKENULL();
-    //std::cout << "MAKENULL -> EMPTY(A): " << A.EMPTY() << std::endl;
+    B1.INSERT(16);
+    B1.INSERT(25);
+    B1.INSERT(26);
+    B1.INSERT(40);
+    C1.MERGE(A1, B1).PRINT();
+//    std::cout << ">" << std::endl;
+//    A.MAKENULL();
+//    std::cout << "MAKENULL -> EMPTY(A): " << A.EMPTY() << std::endl;
 
 
 return 0;
