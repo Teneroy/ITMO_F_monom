@@ -60,6 +60,7 @@ namespace circlelist
         bool equal(node * tail, node * m2_tail) const; //Эквивалентность множеств
         node * intersect_tail(node * tail, node * m1_tail, node * m2_tail, node * temp2);
         node * merge_tail(node * tail, node * m1_tail, node * m2_tail, node * temp2);
+        node * addWithCheck(elem_t data, node * tail); //Добавление элемента с проверкой на пустоту множества
     };
 }
 
