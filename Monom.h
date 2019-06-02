@@ -21,7 +21,11 @@ namespace circlelist
             data = 0;
             next = this;
         }
-        node(elem_t d, node * n):data(d),next(n)
+        node(elem_t d) : data(d)
+        {
+            next = this;
+        }
+        node(elem_t d, node * n) : data(d),next(n)
         {}
     };
 
@@ -54,6 +58,8 @@ namespace circlelist
         node * addToMonom(node * l_el, node * tail); //Добавление одного мн-ва к другому
         node * addToEnd(elem_t data, node * tail); //Добавить эл-т data в конец мн-ва
         bool equal(node * tail, node * m2_tail) const; //Эквивалентность множеств
+        node * intersect_tail(node * tail, node * m1_tail, node * m2_tail, node * temp2);
+        node * merge_tail(node * tail, node * m1_tail, node * m2_tail, node * temp2);
     };
 }
 

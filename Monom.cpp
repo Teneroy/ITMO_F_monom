@@ -93,20 +93,9 @@ circlelist::Monom & circlelist::Monom::DIFFERENCE(const Monom & m1, const Monom 
     {
         while (temp2 != m2._tail && temp -> data > temp2 -> data)
         {
-            if(temp -> data != temp2 -> data)
-            {
-                if(_tail == nullptr)
-                {
-                    _tail = new node();
-                    _tail -> data = temp -> data;
-                } else
-                {
-                    _tail = addToEnd(temp -> data, _tail);
-                }
-                return *this;
-            }
+            temp2 = temp2 -> next;
         }
-        if(temp -> data == temp2 -> data)
+        if(temp -> data != temp2 -> data)
         {
             if(_tail == nullptr)
             {
@@ -121,6 +110,7 @@ circlelist::Monom & circlelist::Monom::DIFFERENCE(const Monom & m1, const Monom 
     }
     if(temp -> data > m2._tail -> data)
     {
+        std::cout << "FLAG";
         _tail = addToMonom(temp, _tail);
         return *this;
     }
@@ -141,13 +131,16 @@ circlelist::Monom & circlelist::Monom::DIFFERENCE(const Monom & m1, const Monom 
             }
             temp = temp -> next;
         }
-        if(_tail == nullptr)
+        if(temp -> data != temp2 -> data)
         {
-            _tail = new node();
-            _tail -> data = temp -> data;
-        } else
-        {
-            _tail = addToEnd(temp -> data, _tail);
+            if(_tail == nullptr)
+            {
+                _tail = new node();
+                _tail -> data = temp -> data;
+            } else
+            {
+                _tail = addToEnd(temp -> data, _tail);
+            }
         }
     }
     return *this;
@@ -192,8 +185,7 @@ circlelist::Monom & circlelist::Monom::INTERSECTION(const Monom & m1, const Mono
         //Если значения совпали:
         if(_tail == nullptr) //Если мн-во в которое пишем пустое, то создаем новый хвост и добавляем жэл-т
         {
-            _tail = new node();
-            _tail -> data = temp -> data;
+            _tail = new node(temp -> data);
         } else
         {
             _tail = addToEnd(temp -> data, _tail); //Добавляем эл-т в конец мн-ва
@@ -208,8 +200,7 @@ circlelist::Monom & circlelist::Monom::INTERSECTION(const Monom & m1, const Mono
         {
             if(_tail == nullptr)
             {
-                _tail = new node();
-                _tail -> data = temp -> data;
+                _tail = new node(temp -> data);
             } else
             {
                 _tail = addToEnd(temp -> data, _tail);
@@ -219,67 +210,14 @@ circlelist::Monom & circlelist::Monom::INTERSECTION(const Monom & m1, const Mono
     }
     if(temp == m1._tail && (temp2 -> data <= temp -> data)) //Если дошли до конца первого мн-ва и указатель на эл-т второго мн-ва не больше хвоста первого
     {
-        while (temp2 != m2._tail && temp -> data >= temp2 -> data) //Идем по второму мн-ву, проверяя эл-ты на соответствие с хвостом первого
-        {
-            if(temp -> data == temp2 -> data)
-            {
-                if(_tail == nullptr)
-                {
-                    _tail = new node();
-                    _tail -> data = temp -> data;
-                } else
-                {
-                    _tail = addToEnd(temp -> data, _tail);
-                }
-                return *this;
-            }
-            temp2 = temp2 -> next;
-        }
-        if(temp -> data == temp2 -> data) //Если хвосты равны, то добавляем эл-т
-        {
-            if(_tail == nullptr)
-            {
-                _tail = new node();
-                _tail -> data = temp -> data;
-            } else
-            {
-                _tail = addToEnd(temp -> data, _tail);
-            }
-        }
+        _tail = intersect_tail(_tail, m1._tail, m2._tail, temp2);
         return *this;
     }
     if(temp2 == m2._tail && (temp -> data <= temp2 -> data)) //Если дошли до конца второго мн-ва и указатель на эл-т первогшо мн-ва не больше хвоста второго
     {
-        while (temp != m1._tail && temp2 -> data >= temp -> data)//Идем по второму мн-ву, проверяя эл-ты на соответствие с хвостом первого
-        {
-            if(temp -> data == temp2 -> data)
-            {
-                if(_tail == nullptr)
-                {
-                    _tail = new node();
-                    _tail -> data = temp -> data;
-                } else
-                {
-                    _tail = addToEnd(temp -> data, _tail);
-                }
-                return *this;
-            }
-            temp = temp -> next;
-        }
-        if(temp -> data == temp2 -> data)//Если хвосты равны, то добавляем эл-т
-        {
-            if(_tail == nullptr)
-            {
-                _tail = new node();
-                _tail -> data = temp -> data;
-            } else
-            {
-                _tail = addToEnd(temp -> data, _tail);
-            }
-        }
+        _tail = intersect_tail(_tail, m2._tail, m1._tail, temp);
         return *this;
     }
-
     return *this;
 }
 
@@ -651,63 +589,12 @@ circlelist::Monom & circlelist::Monom::MERGE(const Monom & m1, const Monom & m2)
     }
     if(temp == m1._tail && temp2 != m2._tail)
     {
-        while (temp2 != m2._tail)
-        {
-            if(temp -> data > temp2 -> data && temp -> data < temp2 -> next -> data)
-            {
-                if(_tail == nullptr)
-                {
-                    _tail = new node();
-                    _tail -> data = temp2 -> data;
-                } else
-                {
-                    _tail = addToEnd(temp2 -> data, _tail);
-                }
-                _tail = addToEnd(temp -> data, _tail);
-            } else {
-                if(_tail == nullptr)
-                {
-                    _tail = new node();
-                    _tail -> data = temp2 -> data;
-                } else
-                {
-                    _tail = addToEnd(temp2 -> data, _tail);
-                }
-            }
-            temp2 = temp2 -> next;
-        }
-        _tail = addToEnd(temp2 -> data, _tail);
+        _tail = merge_tail(_tail, m1._tail, m2._tail, temp2);
         return *this;
     }
     if(temp2 == m2._tail && temp != m1._tail)
     {
-        while (temp != m1._tail)
-        {
-            if(temp2 -> data > temp -> data && temp2 -> data < temp -> next -> data)
-            {
-                if(_tail == nullptr)
-                {
-                    _tail = new node();
-                    _tail -> data = temp -> data;
-                } else
-                {
-                    _tail = addToEnd(temp -> data, _tail);
-                }
-                _tail = addToEnd(temp2 -> data, _tail);
-            } else {
-                if(_tail == nullptr)
-                {
-                    _tail = new node();
-                    _tail -> data = temp -> data;
-                } else
-                {
-                    _tail = addToEnd(temp -> data, _tail);
-                }
-            }
-            temp = temp -> next;
-        }
-        _tail = addToEnd(temp -> data, _tail);
-        return *this;
+        _tail = merge_tail(_tail, m2._tail, m1._tail, temp);
     }
     return *this;
 }
@@ -817,6 +704,67 @@ circlelist::node * circlelist::Monom::deleteList(node * tail)
     }
     delete temp2;
     tail = nullptr;
+    return tail;
+}
+
+
+circlelist::node * circlelist::Monom::intersect_tail(node * tail, node * m1_tail, node * m2_tail, node * temp2)
+{
+    while (temp2 != m2_tail && m1_tail -> data >= temp2 -> data) //Идем по второму мн-ву, проверяя эл-ты на соответствие с хвостом первого
+    {
+        if(m1_tail -> data == temp2 -> data)
+        {
+            if(tail == nullptr)
+            {
+                tail = new node(m1_tail -> data);
+            } else
+            {
+                tail = addToEnd(m1_tail -> data, _tail);
+            }
+            return tail;
+        }
+        temp2 = temp2 -> next;
+    }
+    if(m1_tail -> data == temp2 -> data) //Если хвосты равны, то добавляем эл-т
+    {
+        if(tail == nullptr)
+        {
+            tail = new node(m1_tail -> data);
+        } else
+        {
+            tail = addToEnd(m1_tail -> data, _tail);
+        }
+    }
+    return tail;
+}
+
+
+circlelist::node * circlelist::Monom::merge_tail(node * tail, node * m1_tail, node * m2_tail, node * temp2)
+{
+    while (temp2 != m2_tail)
+    {
+        if(m1_tail -> data > temp2 -> data && m1_tail -> data < temp2 -> next -> data)
+        {
+            if(tail == nullptr)
+            {
+                tail = new node(temp2 -> data);
+            } else
+            {
+                tail = addToEnd(temp2 -> data, tail);
+            }
+            tail = addToEnd(m1_tail -> data, tail);
+        } else {
+            if(tail == nullptr)
+            {
+                tail = new node(temp2 -> data);
+            } else
+            {
+                tail = addToEnd(temp2 -> data, tail);
+            }
+        }
+        temp2 = temp2 -> next;
+    }
+    tail = addToEnd(temp2 -> data, tail);
     return tail;
 }
 
