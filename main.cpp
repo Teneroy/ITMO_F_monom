@@ -113,20 +113,29 @@ int main()
     A1.INSERT(1);
     A1.INSERT(2);
     A1.INSERT(3);
-    A1.INSERT(8);
-    A1.INSERT(34);
-    A1.INSERT(56);
-    A1.INSERT(69);
+//    A1.INSERT(8);
+//    A1.INSERT(34);
+//    A1.INSERT(56);
+//    A1.INSERT(69);
 //    A1.INSERT(11);
 //    A1.INSERT(24);
 
+
+    B1.INSERT(4);
+    B1.INSERT(5);
+    B1.INSERT(6);
+//    B1.INSERT(8);
+//    B1.INSERT(34);
+//    B1.INSERT(56);
+//    B1.INSERT(69);
+/*
     B1.INSERT(3);
     B1.INSERT(5);
     B1.INSERT(8);
     B1.INSERT(21);
     B1.INSERT(26);
-    B1.INSERT(34);
-    C1.UNION(A1, B1).PRINT();
+    B1.INSERT(34);*/
+    C1.DIFFERENCE(B1, A1).PRINT();
 //    std::cout << ">" << std::endl;
 //    A.MAKENULL();
 //    std::cout << "MAKENULL -> EMPTY(A): " << A.EMPTY() << std::endl;

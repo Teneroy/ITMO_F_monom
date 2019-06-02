@@ -45,8 +45,13 @@ circlelist::Monom & circlelist::Monom::DIFFERENCE(const Monom & m1, const Monom 
         _tail = copyMonom(_tail, m1._tail);
         return *this;
     }
-    if(equal(m1._tail, m2._tail))
+    if(equal(m1._tail, m2._tail)) //Если мн-ва эквивалентны
     {
+        return *this;
+    }
+    if(m1._tail -> data < m2._tail -> next -> data) //Если голова одного мн-ва больше хвоста другого , то просто возвр первое
+    {
+        _tail = copyMonom(_tail, m1._tail);
         return *this;
     }
     node * temp = m1._tail -> next;
@@ -249,14 +254,14 @@ circlelist::Monom & circlelist::Monom::UNION(const Monom & m1, const Monom & m2)
         }
         temp = temp -> next;
     }
-    if(temp -> data > _tail -> data) //Если
+    if(temp -> data > _tail -> data) //Если хвост 2-го мн-ва больше хвоста первого, то добавляем значение в хвост
     {
         //Добавляем в конец(temp_r)
         _tail = addToEnd(temp -> data, _tail);
         //temp = temp -> next;
         return *this;
     }
-    while (temp_r != _tail)
+    while (temp_r != _tail) //Если первое мн-во не закончилось, то проходим по 1-му мн-ву до конца и сравниваем значения с хвостом второго
     {
         if(temp -> data == temp_r -> data)
             break;
@@ -268,8 +273,8 @@ circlelist::Monom & circlelist::Monom::UNION(const Monom & m1, const Monom & m2)
         }
         temp_r = temp_r -> next;
     }
-    if(temp_r == _tail && temp_r -> data < temp -> data)
-        _tail = addToEnd(temp -> data, _tail);
+    if(temp_r == _tail && temp_r -> data < temp -> data) //Если дошли до конца первого и второго мн-ва и хвост первого множества меньше хвоста второго
+        _tail = addToEnd(temp -> data, _tail);//Добавляем хвост второго мн-ва в конец первого
     return *this;
     /*copy monom start*/
     /*copy monom end*/
@@ -439,7 +444,7 @@ circlelist::Monom & circlelist::Monom::ASSIGN(const Monom & m)
 {
     if(&empty_monom == this)
         return empty_monom;
-    if(m._tail == _tail) //???????????????????????????? шо ето за хуйня?(проверка на самоприсваивание)
+    if(&m == this)
     {
         return *this;
     }
