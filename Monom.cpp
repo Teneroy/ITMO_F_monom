@@ -201,32 +201,32 @@ circlelist::Monom & circlelist::Monom::UNION(const Monom & m1, const Monom & m2)
         _tail = copyMonom(_tail, m1._tail);
         return *this;
     }
-    if(m1._tail -> next -> data > m2._tail -> data)
+    if(m1._tail -> next -> data > m2._tail -> data) //Если голова одного мн-ва больше хвоста другого, то просто сливаем оба мн-ва
     {
         _tail = copyMonom(_tail, m2._tail);
         _tail = addToMonom(_tail, m1._tail);
         return *this;
     }
-    if(m2._tail -> next -> data > m1._tail -> data)
+    if(m2._tail -> next -> data > m1._tail -> data)//Если голова одного мн-ва больше хвоста другого, то просто сливаем оба мн-ва
     {
         _tail = copyMonom(_tail, m1._tail);
         _tail = addToMonom(_tail, m2._tail);
         return *this;
     }
-    _tail = copyMonom(_tail, m1._tail);
+    _tail = copyMonom(_tail, m1._tail); //Записываем мн-во 1 в результат
     node * temp = m2._tail -> next;
     node * temp_r = _tail -> next;
     node * next;
-    while (temp != m2._tail)
+    while (temp != m2._tail) //Идем по мн-ву 2 до хвоста
     {
-        if(temp -> data > _tail -> data)
+        if(temp -> data > _tail -> data) //Если текущее значение больше хвоста, то добавляем в конец и идем дальше
         {
             //Добавляем в конец(temp_r)
             _tail = addToEnd(temp -> data, _tail);
             temp = temp -> next;
             continue;
         }
-        if(temp -> data < _tail -> next -> data)
+        if(temp -> data < _tail -> next -> data)//Если текущее значение меньше головы, то добавляем в начало и идем дальше
         {
             //добавляем в начало(temp_r)
             next = _tail -> next;
@@ -234,32 +234,27 @@ circlelist::Monom & circlelist::Monom::UNION(const Monom & m1, const Monom & m2)
             temp = temp -> next;
             continue;
         }
-        while (temp_r != _tail) //НАДО ЛИ ВЫНОСИТЬ В ОТДЕЛЬНУЮ ФУНКЦИЮ?
+        while (temp_r != _tail) //Идем по иходному списку с позиции temp_r до конца
         {
-            if(temp -> data == temp_r -> data)
+            if(temp -> data == temp_r -> data) //Если значения совпали, то выходим из цикла
                 break;
-            if( (temp -> data > temp_r -> data) && (temp -> data < temp_r -> next -> data) )
+            if( (temp -> data > temp_r -> data) && (temp -> data < temp_r -> next -> data) ) //Если текущее значение 2-го мн-ва находится в промежутке (an,an+1), то добавляем между ними и выходим из цикла
             {
                 next = temp_r -> next;
                 temp_r -> next = new node(temp -> data, next);
+                temp_r = temp_r -> next;
                 break;
             }
             temp_r = temp_r -> next;
         }
         temp = temp -> next;
     }
-    if(temp -> data > _tail -> data)
+    if(temp -> data > _tail -> data) //Если
     {
         //Добавляем в конец(temp_r)
         _tail = addToEnd(temp -> data, _tail);
-        temp = temp -> next;
-    }
-    if(temp -> data < _tail -> next -> data)
-    {
-        //добавляем в начало(temp_r)
-        next = _tail -> next;
-        _tail -> next = new node(temp -> data, next);
-        temp = temp -> next;
+        //temp = temp -> next;
+        return *this;
     }
     while (temp_r != _tail)
     {
@@ -273,7 +268,8 @@ circlelist::Monom & circlelist::Monom::UNION(const Monom & m1, const Monom & m2)
         }
         temp_r = temp_r -> next;
     }
-
+    if(temp_r == _tail && temp_r -> data < temp -> data)
+        _tail = addToEnd(temp -> data, _tail);
     return *this;
     /*copy monom start*/
     /*copy monom end*/
