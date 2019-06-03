@@ -41,7 +41,7 @@ circlelist::Monom & circlelist::Monom::DIFFERENCE(const Monom & m1, const Monom 
         return *this;
     if(m2._tail == nullptr) //Если второе множество пустое, то возвращаем первое множество
     {
-        _tail = new node(m1._tail -> data, nullptr);
+       // _tail = new node(m1._tail -> data, nullptr);
         _tail = copyMonom(_tail, m1._tail);
         return *this;
     }
@@ -58,31 +58,31 @@ circlelist::Monom & circlelist::Monom::DIFFERENCE(const Monom & m1, const Monom 
     node * temp2 = m2._tail -> next;
     while (temp != m1._tail && temp2 != m2._tail && (temp -> data < m2._tail -> data) && (temp2 -> data < m1._tail -> data))
     {
-        if(temp -> data < temp2 -> data)
+        if(temp -> data < temp2 -> data) // Если значение первого мн-ва меньше второго, добавляем и смещаем первый указатель
         {
             _tail = addWithCheck(temp -> data, _tail);
             temp = temp -> next;
             continue;
         }
-        if(temp -> data > temp2 -> data)
+        if(temp -> data > temp2 -> data)// Если значение второго мн-ва меньше первого, смещаем второй указатель
         {
             temp2 = temp2 -> next;
             continue;
         }
-        temp = temp -> next;
+        temp = temp -> next;//Если значения равны, то смещаем оба указателя
         temp2 = temp2 -> next;
     }
-    if(temp == m1._tail && temp2 == m2._tail)
+    if(temp == m1._tail && temp2 == m2._tail) //Если оба указателя хвосты
     {
-        if(temp -> data != temp2 -> data)
+        if(temp -> data != temp2 -> data) //Если хвосты не равны, то добавляем значение
         {
             _tail = addWithCheck(temp -> data, _tail);
         }
         return *this;
     }
-    if(temp == m1._tail && (temp2 -> data < temp -> data))
+    if(temp == m1._tail && (temp2 -> data < temp -> data)) //Если дошли до хвоста первого мн-ва и указатель второго, меньше хвоста первого
     {
-        while (temp2 != m2._tail && temp -> data > temp2 -> data)
+        while (temp2 != m2._tail && temp -> data > temp2 -> data) //идем по второму мн-ву, пока хвост превого больше указателя на второе
         {
             temp2 = temp2 -> next;
         }
@@ -92,7 +92,7 @@ circlelist::Monom & circlelist::Monom::DIFFERENCE(const Monom & m1, const Monom 
         }
         return *this;
     }
-    if(temp -> data > m2._tail -> data)
+    if(temp -> data > m2._tail -> data) //Если значение первого указателя больше хвоста 2-го мн-ва, то просто добавляем первое
     {
         while (temp != m1._tail)
         {
@@ -102,7 +102,7 @@ circlelist::Monom & circlelist::Monom::DIFFERENCE(const Monom & m1, const Monom 
         _tail = addWithCheck(temp -> data, _tail);
         return *this;
     }
-    if(temp2 == m2._tail && temp -> data < temp2 -> data)
+    if(temp2 == m2._tail && temp -> data < temp2 -> data) //Если значение первого указателя меньше хвоста 2-го мн-ва и дошли до конца второго мн-ва
     {
         while (temp != m1._tail)
         {
@@ -282,43 +282,42 @@ circlelist::Monom & circlelist::Monom::UNION(const Monom & m1, const Monom & m2)
 
 void circlelist::Monom::INSERT(const elem_t x)
 {
-    if(&empty_monom == this)
+    if(&empty_monom == this)//Если пытаемся вызвать на фейковом элементе, то возвращаем фейковый элемент
         return;
-    if(_tail == nullptr)
+    if(_tail == nullptr) //Если м-во пустое, то создаем новый хвост
     {
-        _tail = new node();
-        _tail -> data = x;
+        _tail = new node(x);
         return;
     }
-    node * temp = _tail -> next;
-    if(_tail -> next -> data == x || _tail -> data == x)
+    node * temp = _tail -> next; //Указываем на голову
+    if(_tail -> next -> data == x || _tail -> data == x) //Если значение головы или хвоста равно x, то такой эл-т уже есть и выходим из функции
     {
         return;
     }
-    if(temp == _tail && _tail -> data < x)
+    if(temp == _tail && _tail -> data < x)  //Если в списке один элемент и он меньше x, то добавляем в конец
     {
         _tail -> next = new node(x, _tail);
         _tail = _tail -> next;
         return;
     }
-    if(temp == _tail && _tail -> data > x)
+    if(temp == _tail && _tail -> data > x)//Если в списке один элемент и он больше x, то добавляем в начало
     {
         _tail -> next = new node(x, _tail);
         return;
     }
-    if(temp -> data > x)
+    if(temp -> data > x) //Если  первый эл-т больше x, то добавляем в начало
     {
         _tail -> next = new node(x, temp);
         return;
     }
-    if(_tail -> data < x)
+    if(_tail -> data < x) //Если  последний эл-т меньше x, то добавляем в конец
     {
         _tail -> next = new node(x, temp);
         _tail = _tail -> next;
     }
-    while(temp != _tail)
+    while(temp != _tail && temp -> data < x) //Идем до конца мн-ва
     {
-        if(temp -> data < x && temp -> next -> data > x)
+        if(temp -> data < x && temp -> next -> data > x) //если значение входит в промежуток (An, An+1), добавляем
         {
             node * next = temp -> next;
             temp -> next = new node(x, next);
@@ -362,18 +361,18 @@ void circlelist::Monom::PRINT() const
 
 bool circlelist::Monom::EQUAL(const Monom & m2) const
 {
-    if(this == &m2)
+    if(this == &m2) //Если адреса равны, то мн-ва эквивалентны
         return true;
     return equal(_tail, m2._tail);
 }
 
 bool circlelist::Monom::equal(node * tail, node * m2_tail) const
 {
-    if(tail == nullptr || m2_tail == nullptr)
+    if(tail == nullptr || m2_tail == nullptr) //Если одно из множеств пустое, мн-ва не эквивалентны
     {
         return false;
     }
-    if(tail -> data != m2_tail -> data)
+    if(tail -> data != m2_tail -> data) //Если значения хвостов не равны, то мн-ва не эквивалентны
     {
         return false;
     }
@@ -381,53 +380,53 @@ bool circlelist::Monom::equal(node * tail, node * m2_tail) const
     node * temp2 = m2_tail -> next;
     while(temp1 != tail && temp2 != m2_tail)
     {
-        if(temp1 -> data != temp2 -> data)
+        if(temp1 -> data != temp2 -> data) //Если значения не совпали, то мн-ва не эквивалентны
         {
             return false;
         }
         temp1 = temp1 -> next;
         temp2 = temp2 -> next;
     }
-    return !(temp1 != tail || temp2 != m2_tail);
+    return !(temp1 != tail || temp2 != m2_tail); //Если один из указателей не равен хвосту, то мн-ва не эквивалентны
 }
 
 circlelist::Monom & circlelist::Monom::FIND(elem_t x, Monom & m2)
 {
-    if(&empty_monom == this || &empty_monom == &m2)
+    if(&empty_monom == this) //Если вызываем на пустом мн-ве, вернуть пустое мн-во
         return empty_monom;
     node * check;
-    if(_tail -> next -> data == x || _tail -> data == x)
+    if(_tail -> next -> data == x || _tail -> data == x) //Если  значение хвоста или головы первого мн-ва равно x, вернуть первое мн-во
     {
         return *this;
     }
-    if(m2._tail -> data == x || m2._tail -> next -> data == x)
+    if(m2._tail -> data == x || m2._tail -> next -> data == x) //Если  значение хвоста или головы второго мн-ва равно x, вернуть второе мн-во
     {
         return m2;
     }
-    if(_tail -> next == _tail)
+    if(_tail -> next == _tail) //Если в 1-м мн-ве один элемент
     {
-        if(m2._tail -> next == m2._tail)
+        if(m2._tail -> next == m2._tail) //Если второе  мн-во имеет 1 эл-т, то x нет ни в одном мн-ве
         {
             return empty_monom;//false
         }
-        check = findPrevEl(x, m2._tail);
+        check = findPrevEl(x, m2._tail); //Иначе проверяем на наличие во 2-м мн-ве
         if(check != nullptr)
             return m2;
         return empty_monom;
     }
-    if(m2._tail -> next == m2._tail)
+    if(m2._tail -> next == m2._tail) //Если второе мн-во хранит 1 эл-т
     {
-        check = findPrevEl(x, _tail);
+        check = findPrevEl(x, _tail); //Проверяем на наличие в 1-ом мн-ве
         if(check != nullptr)
         {
             return *this;
         }
         return empty_monom;//False
     }
-    check = findPrevEl(x, _tail);
+    check = findPrevEl(x, _tail);//Проверяем на наличие в 1-ом мн-ве
     if(check != nullptr)
         return *this;
-    check = findPrevEl(x, m2._tail);
+    check = findPrevEl(x, m2._tail);//Иначе проверяем на наличие во 2-м мн-ве
     if(check != nullptr)
         return m2;
     return empty_monom;
@@ -435,24 +434,24 @@ circlelist::Monom & circlelist::Monom::FIND(elem_t x, Monom & m2)
 
 void circlelist::Monom::DELETE(elem_t x)
 {
-    if(&empty_monom == this)
+    if(&empty_monom == this) //Если вызываем на пустом мн-ве
         return;
     _tail = deleteEL(_tail, x);
 }
 
 circlelist::Monom & circlelist::Monom::ASSIGN(const Monom & m)
 {
-    if(&empty_monom == this)
+    if(&empty_monom == this)//Если вызываем на пустом мн-ве
         return empty_monom;
-    if(&m == this)
+    if(&m == this) //Проверка на самоприсваивание
     {
         return *this;
     }
-    if(_tail != nullptr)
+    if(_tail != nullptr) //Если мн-во не пустое, чистим
     {
         _tail = deleteList(_tail);
     }
-    if(m._tail == nullptr)
+    if(m._tail == nullptr) //Если присваиваемое мн-во пустое, вернуть текущее пустое мн-во
     {
         return *this;
     }
@@ -491,7 +490,7 @@ circlelist::Monom & circlelist::Monom::MERGE(const Monom & m1, const Monom & m2)
     }
     node * temp = m1._tail -> next;
     node * temp2 = m2._tail -> next;
-    while(temp != m1._tail && temp2 != m2._tail)
+    while(temp != m1._tail && temp2 != m2._tail) //Идем по двум мн-вам и пишем в исходное
     {
         if(temp -> data < temp2 -> data)
         {
@@ -505,7 +504,7 @@ circlelist::Monom & circlelist::Monom::MERGE(const Monom & m1, const Monom & m2)
         }
     }
 
-    if(temp == m1._tail && temp2 == m2._tail)
+    if(temp == m1._tail && temp2 == m2._tail)//если в 2-х мн-вах дошли до хвоста
     {
         if(temp -> data < temp2 -> data)
         {
