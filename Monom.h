@@ -54,7 +54,7 @@ namespace circlelist
         node * deleteList(node * tail); //Очистить список
         node * copyMonom(node * t1, node * t2); //Копировать множество t1 в t2
         node * findPrevEl(elem_t x, node * tail) const; //Функция поиска по значению, возвращает предыдущий элемент
-        node * deleteEL(node * tail, elem_t x); //Удаление эл-та x из мн-ва
+        //node * deleteEL(node * tail, elem_t x); //Удаление эл-та x из мн-ва
         node * addToMonom(node * l_el, node * tail); //Добавление одного мн-ва к другому
         node * addToEnd(elem_t data, node * tail); //Добавить эл-т data в конец мн-ва
         bool equal(node * tail, node * m2_tail) const; //Эквивалентность множеств
@@ -111,6 +111,7 @@ namespace slinkedlist
         node * findPrevEl(elem_t x, node * head) const; //Функция поиска элемента по значению, вернет предыдущий элемент
         node * get_last_el(node * head) const; //Получить последний элемент списка
         bool equal(node * head, node * m2_head) const; //Эквивалентность множеств
+        int sub_set(node * m1_head, node * m2_head) const; //Проверка на то, является m2 подмножеством m1(результат 0, если нет, мощность мн-ва, если да)
     };
 }
 

@@ -368,6 +368,8 @@ bool circlelist::Monom::EQUAL(const Monom & m2) const
 
 bool circlelist::Monom::equal(node * tail, node * m2_tail) const
 {
+    if(tail == nullptr && m2_tail == nullptr)
+        return true;
     if(tail == nullptr || m2_tail == nullptr) //Если одно из множеств пустое, мн-ва не эквивалентны
     {
         return false;
@@ -436,7 +438,42 @@ void circlelist::Monom::DELETE(elem_t x)
 {
     if(&empty_monom == this) //Если вызываем на пустом мн-ве
         return;
-    _tail = deleteEL(_tail, x);
+    //_tail = deleteEL(_tail, x);
+    node * prev;
+    node * cur;
+    if(_tail -> data == x)
+    {
+        //delete tail
+        if(_tail -> next == _tail)
+        {
+            delete _tail;
+            _tail = nullptr;
+        } else
+        {
+            cur = _tail;
+            prev = findPrevEl(x, _tail);
+            prev -> next = _tail -> next;
+            _tail = prev;
+            delete cur;
+        }
+        return;
+    }
+    if(_tail -> next == _tail)
+        return;
+    if(_tail -> next -> data == x)
+    {
+        //delete head
+        cur = _tail -> next;
+        _tail -> next = cur -> next;
+        delete cur;
+        return;
+    }
+    prev = findPrevEl(x, _tail);
+    if(prev == nullptr)
+        return;
+    cur = prev -> next;
+    prev -> next = cur -> next;
+    delete cur;
 }
 
 circlelist::Monom & circlelist::Monom::ASSIGN(const Monom & m)
@@ -556,46 +593,46 @@ circlelist::node * circlelist::Monom::addToMonom(node * l_el, node * tail)
     l_temp = l_temp -> next;
     return l_temp;
 }
-
-circlelist::node * circlelist::Monom::deleteEL(node * tail, elem_t x)
-{
-    node * prev;
-    node * cur;
-    if(tail -> data == x)
-    {
-        //delete tail
-        if(tail -> next == _tail)
-        {
-            delete tail;
-            tail = nullptr;
-        } else
-        {
-            cur = tail;
-            prev = findPrevEl(x, tail);
-            prev -> next = tail -> next;
-            tail = prev;
-            delete cur;
-        }
-        return tail;
-    }
-    if(tail -> next == tail)
-        return tail;
-    if(tail -> next -> data == x)
-    {
-        //delete head
-        cur = tail -> next;
-        tail -> next = cur -> next;
-        delete cur;
-        return tail;
-    }
-    prev = findPrevEl(x, _tail);
-    if(prev == nullptr)
-        return tail;
-    cur = prev -> next;
-    prev -> next = cur -> next;
-    delete cur;
-    return tail;
-}
+//
+//circlelist::node * circlelist::Monom::deleteEL(node * tail, elem_t x)
+//{
+//    node * prev;
+//    node * cur;
+//    if(tail -> data == x)
+//    {
+//        //delete tail
+//        if(tail -> next == _tail)
+//        {
+//            delete tail;
+//            tail = nullptr;
+//        } else
+//        {
+//            cur = tail;
+//            prev = findPrevEl(x, tail);
+//            prev -> next = tail -> next;
+//            tail = prev;
+//            delete cur;
+//        }
+//        return tail;
+//    }
+//    if(tail -> next == tail)
+//        return tail;
+//    if(tail -> next -> data == x)
+//    {
+//        //delete head
+//        cur = tail -> next;
+//        tail -> next = cur -> next;
+//        delete cur;
+//        return tail;
+//    }
+//    prev = findPrevEl(x, _tail);
+//    if(prev == nullptr)
+//        return tail;
+//    cur = prev -> next;
+//    prev -> next = cur -> next;
+//    delete cur;
+//    return tail;
+//}
 
 circlelist::node * circlelist::Monom::addToEnd(elem_t data, node * tail)
 {
@@ -1011,20 +1048,21 @@ void slinkedlist::Monom::PRINT() const
 
 bool slinkedlist::Monom::equal(node * head, node * m2_head) const
 {
+    if(head == nullptr && m2_head == nullptr)
+        return true;
     if(head == nullptr || m2_head == nullptr)
         return false;
-    if(head -> data != m2_head -> data)
+    node * temp2 = m2_head;
+    int weight = sub_set(head, m2_head);
+    if(weight == 0)
         return false;
-    node * temp = head -> next;
-    node * temp2 = m2_head -> next;
-    while (temp != nullptr && temp2 != nullptr)
+    int m2_weight = 0;
+    while (temp2 != nullptr)
     {
-        if(temp -> data != temp2 -> data)
-            return false;
-        temp = temp -> next;
+        m2_weight++;
         temp2 = temp2 -> next;
     }
-    return !(temp != nullptr || temp2 != nullptr);
+    return (m2_weight == weight);
 }
 
 slinkedlist::node * slinkedlist::Monom::deleteEl(node * head, node * prev)
@@ -1094,4 +1132,24 @@ slinkedlist::node * slinkedlist::Monom::deleteList(node * head)
     }
     head = nullptr;
     return head;
+}
+
+int slinkedlist::Monom::sub_set(node * m1_head, node * m2_head) const //Проверка на то, является m2 подмножеством m1(результат 0, если нет, мощность мн-ва, если да)
+{
+    node * temp = m1_head;
+    node * temp2;
+    int count = 0;
+    while (temp != nullptr)
+    {
+        temp2 = m2_head;
+        while(temp2 != nullptr && temp -> data != temp2 -> data)
+        {
+            temp2 = temp2 -> next;
+        }
+        if(temp == nullptr)
+            return 0;
+        temp = temp -> next;
+        count++;
+    }
+    return count;
 }
