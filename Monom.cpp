@@ -3,6 +3,214 @@
 //
 
 #include "Monom.h"
+#include <cstdlib>
+
+/*__тупо для битового вывода__*/
+#include <bitset>
+#include <climits>
+/*____*/
+
+/*_________BITSET IMPLMENTATION_________*/
+/*public functions*/
+
+bitset::Monom::Monom(int mi, int ma):_min(mi), _max(ma)
+{
+    if(_min > _max)
+        return;
+    initNewSet();
+}
+
+void bitset::Monom::initNewSet()
+{
+    int val = std::abs(_max) / INT_SIZE;
+    int zerocheck = 0;
+    _max_abs = (_max < 0) ? ((_max % INT_SIZE == 0) ? val - 1 : val) : val;
+    if(_max >= 0 && _min < 0)
+        zerocheck++;
+    val = std::abs(_min) / INT_SIZE;
+    _min_abs = (_min < 0) ? ((_min % INT_SIZE == 0) ? val - 1 : val) : val;
+    if(_max >= 0 && _min < 0)
+        _size = std::abs(_max_abs + _min_abs) + 1 + zerocheck;
+    else
+        _size = std::abs(_max_abs - _min_abs) + 1 + zerocheck;
+    _max_abs += zerocheck;
+    if(_max < 0)
+        std::swap(_max_abs, _min_abs);
+    _arr = new int[_size];
+    for(int i = 0; i < _size; i++)
+    {
+        _arr[i] = 0;
+        std::cout << _arr[i];
+    }
+    std::cout << std::endl;
+}
+
+void bitset::Monom::INSERT(elem_t x)
+{
+    std::cout << "INSERT -> " << x << std::endl;
+    if(x > _max || x < _min)
+        return;
+    int val = std::abs(x) / INT_SIZE;
+    int pos = (x < 0) ? ((x % INT_SIZE == 0) ? val - 1 : val) : val;
+    int real_pos = pos;
+    int temp = 1;
+    if(_min < 0 && _max >= 0)
+        pos++;
+    if(_min >= 0)
+    {
+        val = ((((pos + 1) * INT_SIZE) - 1) - x) - ((pos - 1) * INT_SIZE); //Смещение влево
+        std::cout << "INSERT_POS: " << real_pos << std::endl;
+        std::cout << "LEFT_SDVIG: " << val << std::endl;
+        temp = temp << val;
+        _arr[real_pos] |= temp;
+        std::cout << std::bitset<sizeof(_arr[real_pos]) * CHAR_BIT>(_arr[real_pos]) << "\n";
+    } else if(_min < 0 && _max >= 0)
+    {
+        int zero_pos = _min_abs + 1;
+        if(x >= 0)
+        {
+            real_pos = zero_pos + pos;
+            val = (((pos + 1) * INT_SIZE) - 1) - x - ((pos - 1) * INT_SIZE);
+            std::cout << "INSERT_POS: " << real_pos << std::endl;
+            std::cout << "LEFT_SDVIG: " << val << std::endl;
+            temp = temp << val;
+            _arr[real_pos - 1] |= temp;
+            std::cout << std::bitset<sizeof(_arr[real_pos - 1]) * CHAR_BIT>(_arr[real_pos - 1]) << "\n";
+            //смещаем влево
+        } else if(x < 0)
+        {
+            real_pos = zero_pos - (pos);
+            std::cout << "POS: " << pos << std::endl;
+            val = (((pos) * INT_SIZE)) - std::abs(x);// - ((pos - 1) * INT_SIZE);
+            std::cout << "INSERT_POS: " << real_pos << std::endl;
+            std::cout << "RIGHT_SDVIG: " << val << std::endl;
+            val = INT_SIZE - val - 1;
+            temp = temp << val;
+            _arr[real_pos] |= temp;
+            std::cout << std::bitset<sizeof(_arr[real_pos]) * CHAR_BIT>(_arr[real_pos]) << "\n";
+            //смещаем вправо
+        }
+    } else if(_max < 0)
+    {
+        real_pos = _max_abs - pos;
+        val = (((pos + 1) * INT_SIZE)) - std::abs(x);
+        std::cout << "INSERT_POS: " << real_pos << std::endl;
+        std::cout << "RIGHT_SDVIG: " << val << std::endl;
+        val = INT_SIZE - val - 1;
+        temp = temp << val;
+        _arr[real_pos] |= temp;
+        std::cout << std::bitset<sizeof(_arr[real_pos]) * CHAR_BIT>(_arr[real_pos]) << "\n";
+        //смещаем вправо
+    }
+}
+
+bitset::Monom & bitset::Monom::UNION(const Monom & m1, const Monom & m2)
+{
+    if(m1._max < m2._min)
+    {
+        //новое мн-во и все копируем
+        return *this;
+    }
+    _max = (m1._max > m2._max) ? m1._max : m2._max;
+    _min = (m1._min < m2._min) ? m1._min : m2._min;
+    initNewSet();
+    int val_min1 = std::abs(m1._min) / INT_SIZE;
+    val_min1 = (m1._min < 0) ? ((m1._min % INT_SIZE == 0) ? val_min1 - 1 : val_min1) : val_min1;
+    int val_min2 = std::abs(m2._min) / INT_SIZE;
+    val_min2 = (m2._min < 0) ? ((m2._min % INT_SIZE == 0) ? val_min2 - 1 : val_min2) : val_min2;
+    int copyTo = std::abs(val_min1 - val_min2);
+
+}
+
+void bitset::Monom::PRINT() const
+{
+    if(_max < 0)
+    {
+        print_minus(_size);
+        std::cout << std::endl;
+        return;
+    }
+    if (_min >= 0)
+    {
+        print_plus();
+        return;
+    }
+    int zero_pos = _min_abs + 1;
+    std::cout << "zero_pos: " << zero_pos << std::endl;
+    print_minus(zero_pos);
+    print_plus(zero_pos);
+}
+
+void bitset::Monom::print_plus(int pos) const
+{
+    int i = pos;
+    int j;
+    int i_zp = 0;
+    for(; i < _size; i++)
+    {
+        for(j = 0; j < INT_SIZE; j++)
+        {
+            if(check_bit(_arr[i], j))
+            {
+                std::cout << "{" << (INT_SIZE * i_zp) + j << "}";
+            }
+        }
+        i_zp++;
+    }
+    std::cout << std::endl;
+}
+
+void bitset::Monom::print_minus(int size) const
+{
+    int i = 0;
+    int j;
+    int lower_border;
+    for(; i < size; i++)
+    {
+        lower_border = (INT_SIZE * (size - i));
+        for(j = 0; j < INT_SIZE; j++)
+        {
+            if(check_bit(_arr[i], j))
+            {
+                std::cout << "{" << ((lower_border - j))*(-1) << "}";
+            }
+        }
+    }
+}
+
+void bitset::Monom::print_plus() const
+{
+    int i = 0;
+    int j;
+    for(; i < _size; i++)
+    {
+        for(j = 0; j < INT_SIZE; j++)
+        {
+            if(check_bit(_arr[i], j))
+            {
+                std::cout << "{" << (INT_SIZE * i) + j << "}";
+            }
+        }
+    }
+    std::cout << std::endl;
+}
+
+void bitset::Monom::print_mixed() const
+{
+
+}
+
+int bitset::Monom::check_bit(int val, int pos) const
+{
+    //std::cout << "<check_bit: " << std::endl;
+    //std::cout << "pos -> " << pos << std::endl;
+    unsigned int temp = (1<<(INT_SIZE - 1));
+    //std::cout << "(1<<(pos)) -> " << std::bitset<sizeof((temp>>(pos))) * CHAR_BIT>((temp>>(pos))) << "\n";
+    //std::cout << "val -> " << std::bitset<sizeof(val) * CHAR_BIT>(val) << "\n";
+    return (val & (temp>>(pos)));
+}
+
+
 
 /*_________CIRCLE LIST IMPLMENTATION_________*/
 /*public functions*/
@@ -349,6 +557,8 @@ void circlelist::Monom::PRINT() const
         std::cout << "Fake monom" << std::endl;
         return;
     }
+    if(_tail == nullptr)
+        return;
     node * temp = _tail -> next;
     std::cout << std::setw(25) << "<data>" << std::endl;
     while (temp != _tail)
@@ -758,12 +968,12 @@ slinkedlist::Monom & slinkedlist::Monom::INTERSECTION(const Monom & m1, const Mo
         addMonom(_head, m1._head -> next);
         return *this;
     }
-    if(equal(m1._head, m2._head))//Если мн-ва равны, то возвращаем одно из можеств
-    {
-        _head = new node(m1._head -> data, nullptr);
-        addMonom(_head, m1._head -> next);
-        return *this;
-    }
+//    if(equal(m1._head, m2._head))//Если мн-ва равны, то возвращаем одно из можеств
+//    {
+//        _head = new node(m1._head -> data, nullptr);
+//        addMonom(_head, m1._head -> next);
+//        return *this;
+//    }
     node * temp = m1._head;
     node * l_el = _head; //Указатель на конец множества
     while (temp != nullptr)
@@ -818,8 +1028,8 @@ slinkedlist::Monom & slinkedlist::Monom::DIFFERENCE(const Monom & m1, const Mono
         addMonom(_head, m1._head -> next);
         return *this;
     }
-    if(equal(m1._head, m2._head))
-        return *this;
+//    if(equal(m1._head, m2._head))
+//        return *this;
     node * temp = m2._head;
     _head = new node(m1._head -> data, nullptr);//Копируем множество m1 в текущее
     addMonom(_head, m1._head -> next);//Копируем множество m1 в текущее
@@ -863,12 +1073,12 @@ slinkedlist::Monom & slinkedlist::Monom::UNION(const Monom & m1, const Monom & m
         addMonom(_head, m2._head -> next);
         return *this;
     }
-    if(equal(m1._head, m2._head)) //Если мн-ва равны, то возвращаем первое множество
-    {
-        _head = new node(m1._head -> data, nullptr);
-        addMonom(_head, m1._head -> next);
-        return *this;
-    }
+//    if(equal(m1._head, m2._head)) //Если мн-ва равны, то возвращаем первое множество
+//    {
+//        _head = new node(m1._head -> data, nullptr);
+//        addMonom(_head, m1._head -> next);
+//        return *this;
+//    }
     node * temp = m2._head;
     node * check; //Заводим указатель для проверки на существование элемента в мн-ве
     _head = new node(m1._head -> data, nullptr); //Копируем множество m1 в текущее множество

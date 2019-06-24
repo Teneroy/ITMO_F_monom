@@ -8,6 +8,49 @@
 #include <iostream>
 #include <iomanip>
 
+namespace bitset
+{
+    typedef int elem_t;
+
+    enum {INT_SIZE = (sizeof(int)*8)};
+
+    class Monom
+    {
+    public:
+        Monom(int mi, int ma);
+//        ~Monom();
+        Monom & UNION(const Monom & m1, const Monom & m2); //Объединение мн-в(C = UNION(A,B))
+//        Monom & INTERSECTION(const Monom & m1, const Monom & m2); //Пересечение мн-в(C = INTERSECTION(A,B))
+//        Monom & DIFFERENCE(const Monom & m1, const Monom & m2); //Разность мн-в(C = DIFFERENCE(A,B))
+//        Monom & MERGE(const Monom & m1, const Monom & m2); //Мердж мн-в(C = MERGE(A,B))
+//        Monom & FIND(elem_t x, Monom & m2); // Поиск эл-та в мн-вах A и B, вернет либо A, либо B, либо empty_monom
+//        void MAKENULL(); //Очистить мн-во
+        void INSERT(elem_t x); //Вставить x в мн-во
+//        void DELETE(elem_t x); //Удалить x из мн-ва
+//        elem_t MIN() const; //Получить мин эл-т мн-ва
+//        elem_t MAX() const; //Получить макс эл-т мн-ва
+//        bool EQUAL(const Monom & m2) const; //Проверка на эквивалентность мн-в(A==B)
+//        Monom & ASSIGN(const Monom & m); //Приваивание мн-ва В к А(A=B)
+//        bool EMPTY() const; //Проверка на пустоту мн-ва(в случае вызова мин макс поальзователь проверяет на пустоту мн-в)
+//        bool REPEAT(const Monom & m) const; //Проверка на пересечение мн-в(Если одно из множеств пустое вернууть истина)
+        void PRINT() const;
+//        bool MEMBER(elem_t x) const;
+    private:
+        int * _arr;
+        int _size;
+        int _min;
+        int _max;
+        int _max_abs;
+        int _min_abs;
+        void initNewSet();
+        void print_minus(int size) const;
+        void print_plus() const;
+        void print_plus(int pos) const;
+        void print_mixed() const;
+        int check_bit(int val, int pos) const;
+    };
+}
+
 namespace circlelist
 {
     typedef int elem_t;
@@ -49,6 +92,7 @@ namespace circlelist
         bool EMPTY() const; //Проверка на пустоту мн-ва(в случае вызова мин макс поальзователь проверяет на пустоту мн-в)
         bool REPEAT(const Monom & m) const; //Проверка на пересечение мн-в(Если одно из множеств пустое вернууть истина)
         void PRINT() const;
+        bool MEMBER(elem_t x) const;
     private:
         node * _tail;
         node * deleteList(node * tail); //Очистить список
@@ -102,6 +146,7 @@ namespace slinkedlist
         bool EMPTY() const; // return _head == nullptr
         void PRINT() const;
         bool REPEAT(const Monom & m) const;
+        bool MEMBER(elem_t x) const;
     private:
         node * _head;
         node * deleteList(node * head); //Очистить список
