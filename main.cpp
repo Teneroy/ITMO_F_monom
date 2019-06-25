@@ -177,21 +177,23 @@ int main()
 
 /*_bitset_*/
 
-    Monom a(-100, 60);
+    Monom a(-100, 100);
     a.INSERT(-8);
     a.INSERT(-55);
     a.INSERT(-80);
     a.INSERT(-99);
     a.INSERT(5);
     a.INSERT(60);
+    a.INSERT(90);
     a.PRINT();
-    Monom b(50, 100);
+    Monom b(50, 60);
     b.INSERT(100);
     b.INSERT(88);
+    b.INSERT(55);
     b.PRINT();
     std::cout<<std::endl;
     Monom c(-100, 20);
-    c.UNION(a, b);
+    c.UNION(b, a);
     c.PRINT();
 return 0;
 }

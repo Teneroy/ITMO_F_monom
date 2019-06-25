@@ -40,7 +40,7 @@ void bitset::Monom::INSERT(elem_t x)
         std::cout << "insert -> " << x << std::endl;
         std::cout << "real_pos -> " << real_pos  << std::endl;
         val = ((((pos + 1) * INT_SIZE) - 1) - x) - ((pos - 1) * INT_SIZE); //Смещение влево
-        _arr = add_in_pos(_arr, val, real_pos);
+        _arr = add_in_pos(_arr, val, real_pos - 1);
         return;
     }
     if(_min < 0 && _max >= 0)
@@ -107,25 +107,43 @@ bitset::Monom & bitset::Monom::UNION(const Monom & m1, const Monom & m2)
     _arr = initArr(_arr, _size);
     int copyTo = getLowerCopyPos(m1._min, m1._max, m2._min, m2._max);
     int rCopyCount = getCopyCountElems(m1._min, m1._max, m2._min, m2._max);
-    std::cout << "copy to: " << copyTo << std::endl;
     int * temp_arr = (m1._min < m2._min) ? m1._arr : m2._arr;
-
+    int * temp2_arr = (m1._max > m2._max) ? m1._arr : m2._arr;
     //отдельная функция
     int i = 0;
     for(; i < copyTo; i++)
     {
         _arr[i] = temp_arr[i];
     }
-
-    int * temp2_arr = (m1._max > m2._max) ? m1._arr : m2._arr;
-    int k = _size - rCopyCount;
-    for(; k < _size; k++)
+    int copySize = _size - rCopyCount;
+    int k = copySize;
+    int k2 = ((m1._max > m2._max) ? m1._size : m2._size) - rCopyCount;
+    for(; k < _size; k++,k2++)
     {
-        _arr[k] = temp2_arr[k];
+        _arr[k] = temp2_arr[k2];
+    }
+    int i_root = i;
+    int i_temp = copyTo;
+    int i_temp2 = 0;
+    if(temp_arr != temp2_arr)
+    {
+        for(; i_root < copySize; i_root++,i_temp++,i_temp2++)
+        {
+            _arr[i_root] = (temp_arr[i_temp] | temp2_arr[i_temp2]);
+        }
+    } else
+    {
+        temp2_arr = (m1._max < m2._max) ? m1._arr : m2._arr;
+        for(; i_root < copySize; i_root++,i_temp++,i_temp2++)
+        {
+            _arr[i_root] = (temp_arr[i_temp] | temp2_arr[i_temp2]);
+        }
     }
     //_____
     return *this;
 }
+
+
 
 int bitset::Monom::getCopyCountElems(int min1, int max1, int min2, int max2) const
 {
@@ -135,6 +153,7 @@ int bitset::Monom::getCopyCountElems(int min1, int max1, int min2, int max2) con
     val_max2 = (max2 < 0) ? ((max2 % INT_SIZE == 0) ? val_max2 - 1 : val_max2) : val_max2;
     int copy2 = (std::abs(max2) > std::abs(max1)) ? (val_max2 - val_max1) : (val_max1 - val_max2);
     copy2 = ((max1 >= 0 && min1 < 0 && max2 < 0) || (max2 >= 0 && min2 < 0 && max1 < 0)) ? (++copy2) : copy2;
+    return copy2;
 }
 
 int bitset::Monom::getLowerCopyPos(int min1, int max1, int min2, int max2) const
@@ -228,7 +247,6 @@ void bitset::Monom::print_plus(int pos) const
                 std::cout << "{" << (INT_SIZE * i_zp) + j << "}";
             }
         }
-
         i_zp++;
     }
     std::cout << std::endl;
@@ -256,16 +274,17 @@ void bitset::Monom::print_plus() const
 {
     int i = 0;
     int j;
+    int i_zp = std::abs(_min) / INT_SIZE;//getMinAbs(_min, _max);
     for(; i < _size; i++)
     {
         for(j = 0; j < INT_SIZE; j++)
         {
             if(check_bit(_arr[i], j))
             {
-                std::cout << "{" << (INT_SIZE * i) + j << "}";
+                std::cout << "{" << (INT_SIZE * i_zp) + j << "}";
             }
         }
-        std::cout << std::bitset<sizeof(_arr[i]) * CHAR_BIT>(_arr[i]) << "\n";
+        i_zp++;
     }
     std::cout << std::endl;
 }
