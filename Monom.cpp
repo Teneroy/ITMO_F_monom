@@ -13,6 +13,11 @@
 /*_________BITSET IMPLMENTATION_________*/
 /*public functions*/
 
+bitset::Monom::Monom()
+{
+    _arr = nullptr;
+}
+
 bitset::Monom::Monom(int mi, int ma):_min(mi), _max(ma)
 {
     if(_min > _max)
@@ -133,7 +138,7 @@ bitset::Monom & bitset::Monom::UNION(const Monom & m1, const Monom & m2)
         }
     } else
     {
-        temp2_arr = (m1._max < m2._max) ? m1._arr : m2._arr;
+        temp2_arr = (m1._max <= m2._max) ? m1._arr : m2._arr;
         for(; i_root < copySize; i_root++,i_temp++,i_temp2++)
         {
             _arr[i_root] = (temp_arr[i_temp] | temp2_arr[i_temp2]);
@@ -143,7 +148,67 @@ bitset::Monom & bitset::Monom::UNION(const Monom & m1, const Monom & m2)
     return *this;
 }
 
+bitset::Monom & bitset::Monom::INTERSECTION(const Monom & m1, const Monom & m2)
+{
+    _max = (m1._max < m2._max) ? m1._max : m2._max;
+    _min = (m1._min > m2._min) ? m1._min : m2._min;
+    _size = getSize(_min, _max);
+    _arr = initArr(_arr, _size);
+    int copyFrom = getLowerCopyPos(m1._min, m1._max, m2._min, m2._max);
+    int i_root = 0;
+    int i_temp = copyFrom;
+    int i_temp2 = 0;
+    int * temp_arr = (m1._min < m2._min) ? m1._arr : m2._arr;
+    int * temp2_arr = (m1._max > m2._max) ? m1._arr : m2._arr;
+    std::cout << "temp_arr: " << temp_arr << " temp_arr2: " << temp2_arr << std::endl;
+    if(temp_arr != temp2_arr)
+    {
+        for(; i_root < _size; i_root++,i_temp++,i_temp2++)
+        {
+            _arr[i_root] = (temp_arr[i_temp] & temp2_arr[i_temp2]);
+        }
+    } else
+    {
+        temp2_arr = (m1._max <= m2._max) ? m1._arr : m2._arr;
+        std::cout << "temp_arr: " << temp_arr << " temp_arr2: " << temp2_arr << std::endl;
+        for(; i_root < _size; i_root++,i_temp++,i_temp2++)
+        {
+            _arr[i_root] = (temp_arr[i_temp] & temp2_arr[i_temp2]);
+        }
+    }
+    return *this;
+}
 
+bitset::Monom & bitset::Monom::DIFFERENCE(const Monom & m1, const Monom & m2)
+{
+    _max = m1._max;
+    _min = m1._min;
+    _size = m1._size;
+    _arr = initArr(_arr, _size);
+    int copyFrom = getLowerCopyPos(m1._min, m1._max, m2._min, m2._max);
+    int i_root = 0;
+    int i_temp = copyFrom;
+    int i_temp2 = 0;
+    int * temp_arr = (m1._min < m2._min) ? m1._arr : m2._arr;
+    int * temp2_arr = (m1._max > m2._max) ? m1._arr : m2._arr;
+    std::cout << "temp_arr: " << temp_arr << " temp_arr2: " << temp2_arr << std::endl;
+    if(temp_arr != temp2_arr)
+    {
+        for(; i_root < _size; i_root++,i_temp++,i_temp2++)
+        {
+            _arr[i_root] = (temp_arr[i_temp] & temp2_arr[i_temp2]);
+        }
+    } else
+    {
+        temp2_arr = (m1._max <= m2._max) ? m1._arr : m2._arr;
+        std::cout << "temp_arr: " << temp_arr << " temp_arr2: " << temp2_arr << std::endl;
+        for(; i_root < _size; i_root++,i_temp++,i_temp2++)
+        {
+            _arr[i_root] = (temp_arr[i_temp] & temp2_arr[i_temp2]);
+        }
+    }
+    return *this;
+}
 
 int bitset::Monom::getCopyCountElems(int min1, int max1, int min2, int max2) const
 {

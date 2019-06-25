@@ -183,17 +183,20 @@ int main()
     a.INSERT(-80);
     a.INSERT(-99);
     a.INSERT(5);
+    a.INSERT(54);
+    a.INSERT(55);
     a.INSERT(60);
     a.INSERT(90);
     a.PRINT();
-    Monom b(50, 60);
-    b.INSERT(100);
-    b.INSERT(88);
-    b.INSERT(55);
+    Monom b(-100, 100);
+    b.INSERT(-100);
+    b.INSERT(-88);
+    b.INSERT(-55);
+    b.INSERT(-8);
     b.PRINT();
     std::cout<<std::endl;
     Monom c(-100, 20);
-    c.UNION(b, a);
+    c.UNION(a, b);
     c.PRINT();
 return 0;
 }
