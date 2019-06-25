@@ -17,109 +17,61 @@ bitset::Monom::Monom(int mi, int ma):_min(mi), _max(ma)
 {
     if(_min > _max)
         return;
-    initNewSet();
+    _size = getSize(_min, _max);
+    std::cout << "SIZE: " << _size << std::endl;
+    _arr = initArr(_arr, _size);
 }
 
-void bitset::Monom::initNewSet()
+bitset::Monom::Monom::~Monom()
 {
-    int val = std::abs(_max) / INT_SIZE;
-    int zerocheck = 0;
-    _max_abs = (_max < 0) ? ((_max % INT_SIZE == 0) ? val - 1 : val) : val;
-    if(_max >= 0 && _min < 0)
-        zerocheck++;
-    val = std::abs(_min) / INT_SIZE;
-    _min_abs = (_min < 0) ? ((_min % INT_SIZE == 0) ? val - 1 : val) : val;
-    if(_max >= 0 && _min < 0)
-        _size = std::abs(_max_abs + _min_abs) + 1 + zerocheck;
-    else
-        _size = std::abs(_max_abs - _min_abs) + 1 + zerocheck;
-    _max_abs += zerocheck;
-    if(_max < 0)
-        std::swap(_max_abs, _min_abs);
-    _arr = new int[_size];
-    for(int i = 0; i < _size; i++)
-    {
-        _arr[i] = 0;
-        std::cout << _arr[i];
-    }
-    std::cout << std::endl;
+    delete [] _arr;
 }
 
 void bitset::Monom::INSERT(elem_t x)
 {
-    std::cout << "INSERT -> " << x << std::endl;
     if(x > _max || x < _min)
         return;
-    int val = std::abs(x) / INT_SIZE;
+    int abs_x = std::abs(x);
+    int val = abs_x / INT_SIZE;
     int pos = (x < 0) ? ((x % INT_SIZE == 0) ? val - 1 : val) : val;
     int real_pos = pos;
-    int temp = 1;
-    if(_min < 0 && _max >= 0)
-        pos++;
     if(_min >= 0)
     {
+        std::cout << "insert -> " << x << std::endl;
+        std::cout << "real_pos -> " << real_pos  << std::endl;
         val = ((((pos + 1) * INT_SIZE) - 1) - x) - ((pos - 1) * INT_SIZE); //Смещение влево
-        std::cout << "INSERT_POS: " << real_pos << std::endl;
-        std::cout << "LEFT_SDVIG: " << val << std::endl;
-        temp = temp << val;
-        _arr[real_pos] |= temp;
-        std::cout << std::bitset<sizeof(_arr[real_pos]) * CHAR_BIT>(_arr[real_pos]) << "\n";
-    } else if(_min < 0 && _max >= 0)
+        _arr = add_in_pos(_arr, val, real_pos);
+        return;
+    }
+    if(_min < 0 && _max >= 0)
     {
-        int zero_pos = _min_abs + 1;
+        int min_abs = getMinAbs(_max, _min);
+        pos++;
+        int zero_pos = min_abs + 1;
         if(x >= 0)
         {
             real_pos = zero_pos + pos;
             val = (((pos + 1) * INT_SIZE) - 1) - x - ((pos - 1) * INT_SIZE);
-            std::cout << "INSERT_POS: " << real_pos << std::endl;
-            std::cout << "LEFT_SDVIG: " << val << std::endl;
-            temp = temp << val;
-            _arr[real_pos - 1] |= temp;
-            std::cout << std::bitset<sizeof(_arr[real_pos - 1]) * CHAR_BIT>(_arr[real_pos - 1]) << "\n";
-            //смещаем влево
-        } else if(x < 0)
+            _arr = add_in_pos(_arr, val, real_pos - 1);
+            return;
+        }
+        if(x < 0)
         {
             real_pos = zero_pos - (pos);
-            std::cout << "POS: " << pos << std::endl;
-            val = (((pos) * INT_SIZE)) - std::abs(x);// - ((pos - 1) * INT_SIZE);
-            std::cout << "INSERT_POS: " << real_pos << std::endl;
-            std::cout << "RIGHT_SDVIG: " << val << std::endl;
+            val = (((pos) * INT_SIZE)) - abs_x;// - ((pos - 1) * INT_SIZE);
             val = INT_SIZE - val - 1;
-            temp = temp << val;
-            _arr[real_pos] |= temp;
-            std::cout << std::bitset<sizeof(_arr[real_pos]) * CHAR_BIT>(_arr[real_pos]) << "\n";
-            //смещаем вправо
+            _arr = add_in_pos(_arr, val, real_pos);
+            return;
         }
-    } else if(_max < 0)
+    }
+    if(_max < 0)
     {
-        real_pos = _max_abs - pos;
-        val = (((pos + 1) * INT_SIZE)) - std::abs(x);
-        std::cout << "INSERT_POS: " << real_pos << std::endl;
-        std::cout << "RIGHT_SDVIG: " << val << std::endl;
+        int max_abs = getMaxAbs(_max, _min);
+        real_pos = max_abs - pos;
+        val = (((pos + 1) * INT_SIZE)) - abs_x;
         val = INT_SIZE - val - 1;
-        temp = temp << val;
-        _arr[real_pos] |= temp;
-        std::cout << std::bitset<sizeof(_arr[real_pos]) * CHAR_BIT>(_arr[real_pos]) << "\n";
-        //смещаем вправо
+        _arr = add_in_pos(_arr, val, real_pos);
     }
-}
-
-bitset::Monom & bitset::Monom::UNION(const Monom & m1, const Monom & m2)
-{
-    if(m1._max < m2._min)
-    {
-        //новое мн-во и все копируем
-        return *this;
-    }
-    _max = (m1._max > m2._max) ? m1._max : m2._max;
-    _min = (m1._min < m2._min) ? m1._min : m2._min;
-    initNewSet();
-    int val_min1 = std::abs(m1._min) / INT_SIZE;
-    val_min1 = (m1._min < 0) ? ((m1._min % INT_SIZE == 0) ? val_min1 - 1 : val_min1) : val_min1;
-    int val_min2 = std::abs(m2._min) / INT_SIZE;
-    val_min2 = (m2._min < 0) ? ((m2._min % INT_SIZE == 0) ? val_min2 - 1 : val_min2) : val_min2;
-    int copyTo = std::abs(val_min1 - val_min2);
-
 }
 
 void bitset::Monom::PRINT() const
@@ -135,10 +87,131 @@ void bitset::Monom::PRINT() const
         print_plus();
         return;
     }
-    int zero_pos = _min_abs + 1;
+    int min_abs = getMinAbs(_max, _min);
+    int zero_pos = min_abs + 1;
     std::cout << "zero_pos: " << zero_pos << std::endl;
     print_minus(zero_pos);
     print_plus(zero_pos);
+}
+
+bitset::Monom & bitset::Monom::UNION(const Monom & m1, const Monom & m2)
+{
+//    if(m1._max < m2._min)
+//    {
+//        //новое мн-во и все копируем
+//        return *this;
+//    }
+    _max = (m1._max > m2._max) ? m1._max : m2._max;
+    _min = (m1._min < m2._min) ? m1._min : m2._min;
+    _size = getSize(_min, _max);
+    _arr = initArr(_arr, _size);
+    int copyTo = getLowerCopyPos(m1._min, m1._max, m2._min, m2._max);
+    int rCopyCount = getCopyCountElems(m1._min, m1._max, m2._min, m2._max);
+    std::cout << "copy to: " << copyTo << std::endl;
+    int * temp_arr = (m1._min < m2._min) ? m1._arr : m2._arr;
+
+    //отдельная функция
+    int i = 0;
+    for(; i < copyTo; i++)
+    {
+        _arr[i] = temp_arr[i];
+    }
+
+    int * temp2_arr = (m1._max > m2._max) ? m1._arr : m2._arr;
+    int k = _size - rCopyCount;
+    for(; k < _size; k++)
+    {
+        _arr[k] = temp2_arr[k];
+    }
+    //_____
+    return *this;
+}
+
+int bitset::Monom::getCopyCountElems(int min1, int max1, int min2, int max2) const
+{
+    int val_max1 = std::abs(max1) / INT_SIZE;
+    val_max1 = (max1 < 0) ? ((max1 % INT_SIZE == 0) ? val_max1 - 1 : val_max1) : val_max1;
+    int val_max2 = std::abs(max2) / INT_SIZE;
+    val_max2 = (max2 < 0) ? ((max2 % INT_SIZE == 0) ? val_max2 - 1 : val_max2) : val_max2;
+    int copy2 = (std::abs(max2) > std::abs(max1)) ? (val_max2 - val_max1) : (val_max1 - val_max2);
+    copy2 = ((max1 >= 0 && min1 < 0 && max2 < 0) || (max2 >= 0 && min2 < 0 && max1 < 0)) ? (++copy2) : copy2;
+}
+
+int bitset::Monom::getLowerCopyPos(int min1, int max1, int min2, int max2) const
+{
+    int val_min1 = std::abs(min1) / INT_SIZE;
+    val_min1 = (min1 < 0) ? ((min1 % INT_SIZE == 0) ? val_min1 - 1 : val_min1) : val_min1;
+    int val_min2 = std::abs(min2) / INT_SIZE;
+    val_min2 = (min2 < 0) ? ((min2 % INT_SIZE == 0) ? val_min2 - 1 : val_min2) : val_min2;
+    return ((min1 < 0 && max1 >= 0 && min2 >= 0) || (min2 < 0 && max2 >= 0 && min1 >= 0)) ? ((val_min2 + val_min1) + 1) : ((val_min1 < val_min2) ? (val_min2 - val_min1) : (val_min1 - val_min2));
+    //std::cout << "Copy set " << ((min1 < min2) ? 1 : 2) << " to pos: " << copyTo << std::endl;
+}
+
+int * bitset::Monom::initArr(int * arr, int size)
+{
+    arr = new int[size];
+    for(int i = 0; i < size; i++)
+    {
+        arr[i] = 0;
+        std::cout << arr[i];
+    }
+    std::cout << std::endl;
+    return arr;
+}
+
+int bitset::Monom::getSize(int min, int max)
+{
+    int size;
+    int val = std::abs(max) / INT_SIZE;
+    int max_abs = (max < 0) ? ((max % INT_SIZE == 0) ? val - 1 : val) : val; //Определяем позицию максимального эл-та или позицию последнего полож-го после нуля
+    val = std::abs(min) / INT_SIZE;
+    int min_abs = (min < 0) ? ((min % INT_SIZE == 0) ? val - 1 : val) : val; //Определяем позицию минимального эл-та или позицию последнего отрицательного
+    if(max >= 0 && min < 0)
+    {
+        size = std::abs(max_abs + min_abs) + 1 + 1;
+    } else
+    {
+        size = std::abs(max_abs - min_abs) + 1;
+    }
+    return size;
+}
+
+int bitset::Monom::getMaxAbs(int max, int min) const
+{
+    int max_abs;
+    int val;
+    if(max >= 0)
+    {
+        val = std::abs(max) / INT_SIZE;
+        max_abs = (max < 0) ? ((max % INT_SIZE == 0) ? val - 1 : val) : val;
+        return (min < 0) ? (max_abs + 1) : max_abs;
+    }
+    val = std::abs(min) / INT_SIZE;
+    max_abs = (min % INT_SIZE == 0) ? val - 1 : val;
+    return max_abs;
+}
+
+int bitset::Monom::getMinAbs(int max, int min) const
+{
+    int min_abs;
+    int val;
+    if(max >= 0)
+    {
+        val = std::abs(min) / INT_SIZE;
+        min_abs = (min < 0) ? ((min % INT_SIZE == 0) ? val - 1 : val) : val;
+        return min_abs;
+    }
+    val = std::abs(max) / INT_SIZE;
+    min_abs = (max % INT_SIZE == 0) ? val - 1 : val;
+    return min_abs;
+}
+
+int * bitset::Monom::add_in_pos(int * arr, int val, int pos)
+{
+    int temp = 1;
+    temp = temp << val;
+    arr[pos] |= temp;
+    return arr;
 }
 
 void bitset::Monom::print_plus(int pos) const
@@ -155,6 +228,7 @@ void bitset::Monom::print_plus(int pos) const
                 std::cout << "{" << (INT_SIZE * i_zp) + j << "}";
             }
         }
+
         i_zp++;
     }
     std::cout << std::endl;
@@ -191,13 +265,9 @@ void bitset::Monom::print_plus() const
                 std::cout << "{" << (INT_SIZE * i) + j << "}";
             }
         }
+        std::cout << std::bitset<sizeof(_arr[i]) * CHAR_BIT>(_arr[i]) << "\n";
     }
     std::cout << std::endl;
-}
-
-void bitset::Monom::print_mixed() const
-{
-
 }
 
 int bitset::Monom::check_bit(int val, int pos) const

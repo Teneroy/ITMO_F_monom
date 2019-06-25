@@ -18,7 +18,7 @@ namespace bitset
     {
     public:
         Monom(int mi, int ma);
-//        ~Monom();
+        ~Monom();
         Monom & UNION(const Monom & m1, const Monom & m2); //Объединение мн-в(C = UNION(A,B))
 //        Monom & INTERSECTION(const Monom & m1, const Monom & m2); //Пересечение мн-в(C = INTERSECTION(A,B))
 //        Monom & DIFFERENCE(const Monom & m1, const Monom & m2); //Разность мн-в(C = DIFFERENCE(A,B))
@@ -40,14 +40,17 @@ namespace bitset
         int _size;
         int _min;
         int _max;
-        int _max_abs;
-        int _min_abs;
-        void initNewSet();
+        int getSize(int min, int max);
+        int * initArr(int * arr, int size);
         void print_minus(int size) const;
         void print_plus() const;
         void print_plus(int pos) const;
-        void print_mixed() const;
         int check_bit(int val, int pos) const;
+        int * add_in_pos(int * arr, int val, int pos);
+        int getMaxAbs(int max, int min) const;
+        int getMinAbs(int max, int min) const;
+        int getLowerCopyPos(int min1, int max1, int min2, int max2) const;
+        int getCopyCountElems(int min1, int max1, int min2, int max2) const;
     };
 }
 
