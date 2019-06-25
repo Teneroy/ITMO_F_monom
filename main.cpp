@@ -188,15 +188,16 @@ int main()
     a.INSERT(60);
     a.INSERT(90);
     a.PRINT();
-    Monom b(-100, 100);
+    Monom b(-88, 20);
     b.INSERT(-100);
     b.INSERT(-88);
     b.INSERT(-55);
     b.INSERT(-8);
+    b.INSERT(5);
     b.PRINT();
     std::cout<<std::endl;
     Monom c(-100, 20);
-    c.UNION(a, b);
+    c.DIFFERENCE(a, b);
     c.PRINT();
 return 0;
 }

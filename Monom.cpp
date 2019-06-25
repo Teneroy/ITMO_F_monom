@@ -42,8 +42,6 @@ void bitset::Monom::INSERT(elem_t x)
     int real_pos = pos;
     if(_min >= 0)
     {
-        std::cout << "insert -> " << x << std::endl;
-        std::cout << "real_pos -> " << real_pos  << std::endl;
         val = ((((pos + 1) * INT_SIZE) - 1) - x) - ((pos - 1) * INT_SIZE); //Смещение влево
         _arr = add_in_pos(_arr, val, real_pos - 1);
         return;
@@ -94,7 +92,6 @@ void bitset::Monom::PRINT() const
     }
     int min_abs = getMinAbs(_max, _min);
     int zero_pos = min_abs + 1;
-    std::cout << "zero_pos: " << zero_pos << std::endl;
     print_minus(zero_pos);
     print_plus(zero_pos);
 }
@@ -160,7 +157,6 @@ bitset::Monom & bitset::Monom::INTERSECTION(const Monom & m1, const Monom & m2)
     int i_temp2 = 0;
     int * temp_arr = (m1._min < m2._min) ? m1._arr : m2._arr;
     int * temp2_arr = (m1._max > m2._max) ? m1._arr : m2._arr;
-    std::cout << "temp_arr: " << temp_arr << " temp_arr2: " << temp2_arr << std::endl;
     if(temp_arr != temp2_arr)
     {
         for(; i_root < _size; i_root++,i_temp++,i_temp2++)
@@ -170,7 +166,6 @@ bitset::Monom & bitset::Monom::INTERSECTION(const Monom & m1, const Monom & m2)
     } else
     {
         temp2_arr = (m1._max <= m2._max) ? m1._arr : m2._arr;
-        std::cout << "temp_arr: " << temp_arr << " temp_arr2: " << temp2_arr << std::endl;
         for(; i_root < _size; i_root++,i_temp++,i_temp2++)
         {
             _arr[i_root] = (temp_arr[i_temp] & temp2_arr[i_temp2]);
@@ -185,27 +180,36 @@ bitset::Monom & bitset::Monom::DIFFERENCE(const Monom & m1, const Monom & m2)
     _min = m1._min;
     _size = m1._size;
     _arr = initArr(_arr, _size);
-    int copyFrom = getLowerCopyPos(m1._min, m1._max, m2._min, m2._max);
-    int i_root = 0;
-    int i_temp = copyFrom;
+    int copyTo = getLowerCopyPos(m1._min, m1._max, m2._min, m2._max);
     int i_temp2 = 0;
-    int * temp_arr = (m1._min < m2._min) ? m1._arr : m2._arr;
-    int * temp2_arr = (m1._max > m2._max) ? m1._arr : m2._arr;
-    std::cout << "temp_arr: " << temp_arr << " temp_arr2: " << temp2_arr << std::endl;
-    if(temp_arr != temp2_arr)
+    int * temp_arr = m1._arr;
+    int * temp2_arr = m2._arr;
+    int i = 0;
+    if(_min < m2._min)
     {
-        for(; i_root < _size; i_root++,i_temp++,i_temp2++)
+        temp_arr = m1._arr;
+        for (; i < copyTo; i++)
         {
-            _arr[i_root] = (temp_arr[i_temp] & temp2_arr[i_temp2]);
+            _arr[i] = temp_arr[i];
         }
     } else
     {
-        temp2_arr = (m1._max <= m2._max) ? m1._arr : m2._arr;
-        std::cout << "temp_arr: " << temp_arr << " temp_arr2: " << temp2_arr << std::endl;
-        for(; i_root < _size; i_root++,i_temp++,i_temp2++)
+        i_temp2 = copyTo;
+    }
+    int copySize = _size;
+    if(_max > m2._max)
+    {
+        int rCopyCount = getCopyCountElems(m1._min, m1._max, m2._min, m2._max);
+        copySize = _size - rCopyCount;
+        int k = copySize;
+        for(; k < _size; k++)
         {
-            _arr[i_root] = (temp_arr[i_temp] & temp2_arr[i_temp2]);
+            _arr[k] = temp_arr[k];
         }
+    }
+    for(; i < copySize; i++, i_temp2++)
+    {
+        _arr[i] = ((temp_arr[i] & temp2_arr[i_temp2]) ^ temp_arr[i]);
     }
     return *this;
 }
