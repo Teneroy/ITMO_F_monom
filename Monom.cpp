@@ -16,6 +16,8 @@
 bitset::Monom::Monom()
 {
     _arr = nullptr;
+    _min = 0;
+    _max = 0;
 }
 
 bitset::Monom::Monom(int mi, int ma):_min(mi), _max(ma)
@@ -27,9 +29,16 @@ bitset::Monom::Monom(int mi, int ma):_min(mi), _max(ma)
     _arr = initArr(_arr, _size);
 }
 
-bitset::Monom::Monom::~Monom()
+bitset::Monom::~Monom()
 {
     delete [] _arr;
+}
+
+void bitset::Monom::MAKENULL()
+{
+    delete [] _arr;
+    _min = 0;
+    _max = 0;
 }
 
 void bitset::Monom::INSERT(elem_t x)
@@ -212,6 +221,49 @@ bitset::Monom & bitset::Monom::DIFFERENCE(const Monom & m1, const Monom & m2)
         _arr[i] = ((temp_arr[i] & temp2_arr[i_temp2]) ^ temp_arr[i]);
     }
     return *this;
+}
+
+bitset::Monom & bitset::Monom::ASSIGN(const Monom & m)
+{
+    if(&m == this)
+        return *this;
+    _min = m._min;
+    _max = m._max;
+    _size = m._size;
+    delete[] _arr;
+    int i = 0;
+    _arr = new int[_size];
+    for (; i < _size; i++)
+    {
+        _arr[i] = m._arr[i];
+    }
+    return *this;
+}
+
+bool bitset::Monom::EMPTY() const
+{
+    if(_arr == nullptr)
+        return true;
+    int i = 0;
+    for (; i < _size; i++)
+    {
+        if((_arr[i] | 0) != 0)
+            return false;
+    }
+    return true;
+}
+
+bool bitset::Monom::EQUAL(const Monom & m2) const //Что сравнивает иквал?
+{
+    if(_min != m2._min || _max != m2._max || _size != m2._size || m2._arr == nullptr || _arr == nullptr)
+        return false;
+    int i = 0;
+    for(; i < _size; i++)
+    {
+        if(_arr[i] != m2._arr[i])
+            return false;
+    }
+    return true;
 }
 
 int bitset::Monom::getCopyCountElems(int min1, int max1, int min2, int max2) const
