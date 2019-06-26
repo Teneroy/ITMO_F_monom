@@ -41,6 +41,58 @@ void bitset::Monom::MAKENULL()
     _max = 0;
 }
 
+void bitset::Monom::DELETE(elem_t x)
+{
+    if(x > _max || x < _min)
+        return;
+    int abs_x = std::abs(x);
+    int val = abs_x / INT_SIZE;
+    int pos = (x < 0) ? ((x % INT_SIZE == 0) ? val - 1 : val) : val;
+    int real_pos = 0;
+    if(_min >= 0)
+    {
+        real_pos = pos - getMinAbs(_max, _min);
+        val = ((((pos + 1) * INT_SIZE) - 1) - x) - ((pos - 1) * INT_SIZE);
+    } else if (_min < 0 && _max >= 0)
+    {
+        real_pos = (x >= 0) ? ((getMinAbs(_max, _min) + 1) + pos) : ((getMinAbs(_max, _min) + 1) - (++pos));
+       // std::cout << "real_pos: " << real_pos << std::endl;
+       // std::cout << "getMinAbs: " << ((getMinAbs(_max, _min) + 1) - pos) << std::endl;
+        val = (x >= 0) ? ((((pos + 1) * INT_SIZE) - 1) - x - ((pos - 1) * INT_SIZE)) : (INT_SIZE - ((((pos) * INT_SIZE)) - abs_x) - 1);
+    } else if(_max < 0)
+    {
+        real_pos = getMaxAbs(_max, _min) - pos;
+        val = (((pos + 1) * INT_SIZE)) - abs_x;
+        val = INT_SIZE - val - 1;
+    }
+    _arr[real_pos] = ((_arr[real_pos] & (1 << val)) ^ _arr[real_pos]);
+}
+
+bool bitset::Monom::MEMBER(elem_t x) const
+{
+    if(x > _max || x < _min)
+        return false;
+    int abs_x = std::abs(x);
+    int val = abs_x / INT_SIZE;
+    int pos = (x < 0) ? ((x % INT_SIZE == 0) ? val - 1 : val) : val;
+    int real_pos = 0;
+    if(_min >= 0)
+    {
+        real_pos = pos - getMinAbs(_max, _min);
+        val = ((((pos + 1) * INT_SIZE) - 1) - x) - ((pos - 1) * INT_SIZE);
+    } else if (_min < 0 && _max >= 0)
+    {
+        real_pos = (x >= 0) ? ((getMinAbs(_max, _min) + 1) + pos) : ((getMinAbs(_max, _min) + 1) - (++pos));
+        val = (x >= 0) ? ((((pos + 1) * INT_SIZE) - 1) - x - ((pos - 1) * INT_SIZE)) : (INT_SIZE - ((((pos) * INT_SIZE)) - abs_x) - 1);
+    } else if(_max < 0)
+    {
+        real_pos = getMaxAbs(_max, _min) - pos;
+        val = (((pos + 1) * INT_SIZE)) - abs_x;
+        val = INT_SIZE - val - 1;
+    }
+    return ((_arr[real_pos] & (1 << val)) != 0);
+}
+
 void bitset::Monom::INSERT(elem_t x)
 {
     if(x > _max || x < _min)
@@ -48,11 +100,12 @@ void bitset::Monom::INSERT(elem_t x)
     int abs_x = std::abs(x);
     int val = abs_x / INT_SIZE;
     int pos = (x < 0) ? ((x % INT_SIZE == 0) ? val - 1 : val) : val;
-    int real_pos = pos;
+    int real_pos;
     if(_min >= 0)
     {
+        real_pos = pos - getMinAbs(_max, _min);
         val = ((((pos + 1) * INT_SIZE) - 1) - x) - ((pos - 1) * INT_SIZE); //Смещение влево
-        _arr = add_in_pos(_arr, val, real_pos - 1);
+        _arr = add_in_pos(_arr, val, real_pos);
         return;
     }
     if(_min < 0 && _max >= 0)
@@ -72,6 +125,7 @@ void bitset::Monom::INSERT(elem_t x)
             real_pos = zero_pos - (pos);
             val = (((pos) * INT_SIZE)) - abs_x;// - ((pos - 1) * INT_SIZE);
             val = INT_SIZE - val - 1;
+            std::cout << "real_pos->insert(" << x << "): " << real_pos << std::endl;
             _arr = add_in_pos(_arr, val, real_pos);
             return;
         }
@@ -96,6 +150,7 @@ void bitset::Monom::PRINT() const
     }
     if (_min >= 0)
     {
+        std::cout << "Print plus" << std::endl;
         print_plus();
         return;
     }
@@ -136,6 +191,7 @@ bitset::Monom & bitset::Monom::UNION(const Monom & m1, const Monom & m2)
     int i_root = i;
     int i_temp = copyTo;
     int i_temp2 = 0;
+    std::cout << "UNREPEAT: " << "copyTo(" << copyTo << "), copyFrom(" << copyTo << ")" << std::endl;
     if(temp_arr != temp2_arr)
     {
         for(; i_root < copySize; i_root++,i_temp++,i_temp2++)
@@ -152,6 +208,36 @@ bitset::Monom & bitset::Monom::UNION(const Monom & m1, const Monom & m2)
     }
     //_____
     return *this;
+}
+
+bool bitset::Monom::REPEAT(const Monom & m) const
+{
+    if(_max < m._min || m._max < _min)
+        return false;
+    int start_check = getLowerCopyPos(_min, _max, m._min, m._max);
+    int end_check = getCopyCountElems(_min, _max, m._min, m._max);
+    int start_check_r = (_min < m._min) ? start_check : 0;
+    int start_check_m = (_min > m._min) ? start_check : 0;
+    int end_check_r = (_max > m._max) ? end_check : (_size - end_check);
+    int end_check_m = (_max < m._max) ? end_check : (m._size - end_check);
+    for(;start_check_r < end_check_r; start_check_r++, start_check_m++)
+    {
+        if(_arr[start_check_r] & m._arr[start_check_m])
+            return true;
+    }
+    return false;
+}
+
+bitset::Monom & bitset::Monom::MERGE(const Monom & m1, const Monom & m2)
+{
+    _max = (m1._max > m2._max) ? m1._max : m2._max;
+    _min = (m1._min < m2._min) ? m1._min : m2._min;
+    _size = getSize(_min, _max);
+    _arr = initArr(_arr, _size);
+
+    //int copyTo = getLowerCopyPos(m1._min, m1._max, m2._min, m2._max);
+    //int rCopyCount = getCopyCountElems(m1._min, m1._max, m2._min, m2._max);
+    return * this;
 }
 
 bitset::Monom & bitset::Monom::INTERSECTION(const Monom & m1, const Monom & m2)
