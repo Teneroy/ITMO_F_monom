@@ -13,6 +13,8 @@
 /*_________BITSET IMPLMENTATION_________*/
 /*public functions*/
 
+bitset::Monom empty_bitset;
+
 bitset::Monom::Monom()
 {
     _arr = nullptr;
@@ -68,29 +70,49 @@ void bitset::Monom::DELETE(elem_t x)
     _arr[real_pos] = ((_arr[real_pos] & (1 << val)) ^ _arr[real_pos]);
 }
 
+bitset::Monom & bitset::Monom::FIND(elem_t x, Monom & m2)
+{
+    if((x > _max || x < _min) && (x > m2._max || x < m2._min))
+        return empty_bitset;
+    if (elExist(_arr, x, _min, _max))
+    {
+        return *this;
+    }
+    if (elExist(m2._arr, x, m2._min, m2._max))
+    {
+        return m2;
+    }
+    return empty_bitset;
+}
+
 bool bitset::Monom::MEMBER(elem_t x) const
 {
     if(x > _max || x < _min)
         return false;
+    return elExist(_arr, x, _min, _max);
+}
+
+bool bitset::Monom::elExist(int * arr, int x, int min, int max) const
+{
     int abs_x = std::abs(x);
     int val = abs_x / INT_SIZE;
     int pos = (x < 0) ? ((x % INT_SIZE == 0) ? val - 1 : val) : val;
     int real_pos = 0;
-    if(_min >= 0)
+    if(min >= 0)
     {
-        real_pos = pos - getMinAbs(_max, _min);
+        real_pos = pos - getMinAbs(max, min);
         val = ((((pos + 1) * INT_SIZE) - 1) - x) - ((pos - 1) * INT_SIZE);
-    } else if (_min < 0 && _max >= 0)
+    } else if (min < 0 && max >= 0)
     {
-        real_pos = (x >= 0) ? ((getMinAbs(_max, _min) + 1) + pos) : ((getMinAbs(_max, _min) + 1) - (++pos));
+        real_pos = (x >= 0) ? ((getMinAbs(max, min) + 1) + pos) : ((getMinAbs(max, min) + 1) - (++pos));
         val = (x >= 0) ? ((((pos + 1) * INT_SIZE) - 1) - x - ((pos - 1) * INT_SIZE)) : (INT_SIZE - ((((pos) * INT_SIZE)) - abs_x) - 1);
-    } else if(_max < 0)
+    } else if(max < 0)
     {
-        real_pos = getMaxAbs(_max, _min) - pos;
+        real_pos = getMaxAbs(max, min) - pos;
         val = (((pos + 1) * INT_SIZE)) - abs_x;
         val = INT_SIZE - val - 1;
     }
-    return ((_arr[real_pos] & (1 << val)) != 0);
+    return ((arr[real_pos] & (1 << val)) != 0);
 }
 
 void bitset::Monom::INSERT(elem_t x)
@@ -138,6 +160,62 @@ void bitset::Monom::INSERT(elem_t x)
         val = INT_SIZE - val - 1;
         _arr = add_in_pos(_arr, val, real_pos);
     }
+}
+
+bitset::elem_t bitset::Monom::MIN() const
+{
+    int i = 0;
+    int t = 0;
+    int m = 1;
+    for (; i < _size; i++)
+    {
+        if(_arr[i] != 0)
+        {
+            t = 1 << 30;
+            while (_arr[i] < t) {t >>= 1;m++;};
+            break;
+        }
+    }
+    if(_max < 0)
+    {
+        return (((INT_SIZE * (_size - i)) - m))*(-1);
+    }
+    if (_min >= 0)
+    {
+        return ((INT_SIZE * (std::abs(_min) / INT_SIZE)) + m);
+    }
+    int min_abs = getMinAbs(_max, _min);
+    int zero_pos = min_abs + 1;
+    return ((i < zero_pos) ? (((INT_SIZE * (zero_pos - i)) - m))*(-1) : ((INT_SIZE * (i - zero_pos)) + m));
+}
+
+bitset::elem_t bitset::Monom::MAX() const
+{
+    int i = _size - 1;
+    int t = 0;
+    int m = 0;
+    unsigned int value;
+    for (; i >= 0; i--)
+    {
+        if(_arr[i] != 0)
+        {
+            value = _arr[i];
+            while (!(value & 1)) {value >>= 1;++m;}
+            m = (INT_SIZE - 1) - m;
+            break;
+        }
+    }
+    if(_max < 0)
+    {
+        return (((INT_SIZE * (_size - i)) - m))*(-1);
+    }
+    if (_min >= 0)
+    {
+        return ((INT_SIZE * (std::abs(_min) / INT_SIZE)) + m);
+    }
+    int min_abs = getMinAbs(_max, _min);
+    int zero_pos = min_abs + 1;
+    return ((i < zero_pos) ? (((INT_SIZE * (zero_pos - i)) - m))*(-1) : ((INT_SIZE * (i - zero_pos)) + m));
 }
 
 void bitset::Monom::PRINT() const

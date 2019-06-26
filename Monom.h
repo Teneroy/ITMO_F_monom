@@ -24,12 +24,12 @@ namespace bitset
         Monom & INTERSECTION(const Monom & m1, const Monom & m2); //Пересечение мн-в(C = INTERSECTION(A,B))
         Monom & DIFFERENCE(const Monom & m1, const Monom & m2); //Разность мн-в(C = DIFFERENCE(A,B))
         Monom & MERGE(const Monom & m1, const Monom & m2); //Мердж мн-в(C = MERGE(A,B))
-//        Monom & FIND(elem_t x, Monom & m2); // Поиск эл-та в мн-вах A и B, вернет либо A, либо B, либо empty_monom
+        Monom & FIND(elem_t x, Monom & m2); // Поиск эл-та в мн-вах A и B, вернет либо A, либо B, либо empty_monom
         void MAKENULL(); //Очистить мн-во
         void INSERT(elem_t x); //Вставить x в мн-во
         void DELETE(elem_t x); //Удалить x из мн-ва
-//        elem_t MIN() const; //Получить мин эл-т мн-ва
-//        elem_t MAX() const; //Получить макс эл-т мн-ва
+        elem_t MIN() const; //Получить мин эл-т мн-ва
+        elem_t MAX() const; //Получить макс эл-т мн-ва
         bool EQUAL(const Monom & m2) const; //Проверка на эквивалентность мн-в(A==B)
         Monom & ASSIGN(const Monom & m); //Приваивание мн-ва В к А(A=B)
         bool EMPTY() const; //Проверка на пустоту мн-ва(в случае вызова мин макс поальзователь проверяет на пустоту мн-в)
@@ -52,6 +52,7 @@ namespace bitset
         int getMinAbs(int max, int min) const;
         int getLowerCopyPos(int min1, int max1, int min2, int max2) const;
         int getCopyCountElems(int min1, int max1, int min2, int max2) const;
+        bool elExist(int * arr, int x, int min, int max) const;
     };
 }
 
