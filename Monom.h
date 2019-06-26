@@ -110,6 +110,10 @@ namespace circlelist
         node * intersect_tail(node * tail, node * m1_tail, node * m2_tail, node * temp2);
         node * merge_tail(node * tail, node * m1_tail, node * m2_tail, node * temp2);
         node * addWithCheck(elem_t data, node * tail); //Добавление элемента с проверкой на пустоту множества
+        node * difference_private(node * tail1, node * tail2);
+        node * difference_check_tail(node * tail, node * tail1, node * tail2, node * temp, node * temp2);
+        node * intersection_private(node * tail1, node * tail2);
+        node * merge_tail(node * tail1, node * tail2);
     };
 }
 
@@ -162,6 +166,9 @@ namespace slinkedlist
         node * get_last_el(node * head) const; //Получить последний элемент списка
         bool equal(node * head, node * m2_head) const; //Эквивалентность множеств
         int sub_set(node * m1_head, node * m2_head) const; //Проверка на то, является m2 подмножеством m1(результат 0, если нет, мощность мн-ва, если да)
+        node * intersection_private(node * head, node * m1_head, node * m2_head);
+        node * difference_private(node * m1_head, node * m2_head);
+        node * union_private(node * m1_head, node * m2_head);
     };
 }
 

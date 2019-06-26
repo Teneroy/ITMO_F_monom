@@ -3,28 +3,35 @@
 //
 
 #include "Monom.h"
-using namespace bitset;
+using namespace circlelist;
 
 int main()
 {
-//    Monom A;
-//    Monom B;
-//    Monom C;
+    Monom A;
+    Monom B;
+    Monom C;
 //    //std::cout << "nullptr -> EQUAL(A,B): " << A.EQUAL(B) << std::endl;
 //    std::cout << "EMPTY(A): " << A.EMPTY() << std::endl;
-//    A.INSERT(1);
-//    A.INSERT(5);
-//    A.INSERT(9);
-//    A.INSERT(14);
-//    A.INSERT(15);
+    A.INSERT(1);
+    A.INSERT(5);
+    A.INSERT(9);
+    A.INSERT(14);
+    A.INSERT(15);
 //   // A.PRINT();
-//    B.INSERT(10);
-//    B.INSERT(13);
-//    B.INSERT(15);
-//    B.INSERT(9);
-//    B.INSERT(20);
-//    B.INSERT(21);
-//    B.INSERT(31);
+    B.INSERT(10);
+    B.INSERT(5);
+    B.INSERT(15);
+    B.INSERT(9);
+    B.INSERT(20);
+    B.INSERT(21);
+    B.INSERT(31);
+
+    A.PRINT();
+    B.PRINT();
+    C.INTERSECTION(A, B).PRINT();
+    std::cout << "member(1): " << A.MEMBER(1) << std::endl;
+    std::cout << "member(5): " << A.MEMBER(5) << std::endl;
+    std::cout << "member(12): " << A.MEMBER(12) << std::endl;
 //////    B.INSERT(4);
 //////    B.INSERT(8);
 //////    B.INSERT(80);
@@ -176,7 +183,7 @@ int main()
 
 
 /*_bitset_*/
-
+/*
     Monom a(-100, 100);
     a.INSERT(-8);
     a.INSERT(-55);
@@ -221,5 +228,6 @@ int main()
     std::cout << "MAX: " << a.MAX() << std::endl;
     a.FIND(55, b).PRINT();
     a.FIND(140, b).PRINT();
+*/
 return 0;
 }
