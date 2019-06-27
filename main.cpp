@@ -28,7 +28,7 @@ int main()
 
     A.PRINT();
     B.PRINT();
-    C.INTERSECTION(A, B).PRINT();
+    C.UNION(A, B).PRINT();
     std::cout << "member(1): " << A.MEMBER(1) << std::endl;
     std::cout << "member(5): " << A.MEMBER(5) << std::endl;
     std::cout << "member(12): " << A.MEMBER(12) << std::endl;

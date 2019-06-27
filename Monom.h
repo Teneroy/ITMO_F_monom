@@ -114,6 +114,8 @@ namespace circlelist
         node * difference_check_tail(node * tail, node * tail1, node * tail2, node * temp, node * temp2);
         node * intersection_private(node * tail1, node * tail2);
         node * merge_tail(node * tail1, node * tail2);
+        node * union_check_two_tails(node * tail, node * tail1, node * tail2);
+        node * union_check_tail(node * tail, node * tail1, node * temp2, node * tail2);
     };
 }
 

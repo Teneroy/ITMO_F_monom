@@ -700,63 +700,43 @@ circlelist::Monom & circlelist::Monom::UNION(const Monom & m1, const Monom & m2)
         _tail = addToMonom(_tail, m2._tail);
         return *this;
     }
-    _tail = copyMonom(_tail, m1._tail); //Записываем мн-во 1 в результат
-    node * temp = m2._tail -> next;
-    node * temp_r = _tail -> next;
+    //_tail = copyMonom(_tail, m1._tail); //Записываем мн-во 1 в результат
+    node * temp = m1._tail -> next;
+    node * temp2 = m2._tail -> next;
     node * next;
-    while (temp != m2._tail) //Идем по мн-ву 2 до хвоста
+    while (temp != m1._tail && temp2 != m2._tail) //Идем по мн-ву 2 до хвоста
     {
-        if(temp -> data > _tail -> data) //Если текущее значение больше хвоста, то добавляем в конец и идем дальше
+        if(temp -> data < temp2 -> data)
         {
-            //Добавляем в конец(temp_r)
-            _tail = addToEnd(temp -> data, _tail);
+            _tail = addWithCheck(temp -> data, _tail);
             temp = temp -> next;
             continue;
         }
-        if(temp -> data < _tail -> next -> data)//Если текущее значение меньше головы, то добавляем в начало и идем дальше
+        if(temp -> data > temp2 -> data)
         {
-            //добавляем в начало(temp_r)
-            next = _tail -> next;
-            _tail -> next = new node(temp -> data, next);
-            temp = temp -> next;
+            _tail = addWithCheck(temp2 -> data, _tail);
+            temp2 = temp2 -> next;
             continue;
         }
-        while (temp_r != _tail) //Идем по иходному списку с позиции temp_r до конца
-        {
-            if(temp -> data == temp_r -> data) //Если значения совпали, то выходим из цикла
-                break;
-            if( (temp -> data > temp_r -> data) && (temp -> data < temp_r -> next -> data) ) //Если текущее значение 2-го мн-ва находится в промежутке (an,an+1), то добавляем между ними и выходим из цикла
-            {
-                next = temp_r -> next;
-                temp_r -> next = new node(temp -> data, next);
-                temp_r = temp_r -> next;
-                break;
-            }
-            temp_r = temp_r -> next;
-        }
+        _tail = addWithCheck(temp -> data, _tail);
         temp = temp -> next;
+        temp2 = temp2 -> next;
     }
-    if(temp -> data > _tail -> data) //Если хвост 2-го мн-ва больше хвоста первого, то добавляем значение в хвост
+    if(temp == m1._tail && temp2 == m2._tail)
     {
-        //Добавляем в конец(temp_r)
-        _tail = addToEnd(temp -> data, _tail);
-        //temp = temp -> next;
+        _tail = union_check_two_tails(_tail, temp, temp2);
         return *this;
     }
-    while (temp_r != _tail) //Если первое мн-во не закончилось, то проходим по 1-му мн-ву до конца и сравниваем значения с хвостом второго
+    if(temp == m1._tail)
     {
-        if(temp -> data == temp_r -> data)
-            break;
-        if( (temp -> data > temp_r -> data) && (temp -> data < temp_r -> next -> data) )
-        {
-            next = temp_r -> next;
-            temp_r -> next = new node(temp -> data, next);
-            break;
-        }
-        temp_r = temp_r -> next;
+        _tail = union_check_tail(_tail, temp, temp2, m2._tail);
+        return *this;
     }
-    if(temp_r == _tail && temp_r -> data < temp -> data) //Если дошли до конца первого и второго мн-ва и хвост первого множества меньше хвоста второго
-        _tail = addToEnd(temp -> data, _tail);//Добавляем хвост второго мн-ва в конец первого
+    if(temp2 == m2._tail)
+    {
+        _tail = union_check_tail(_tail, temp2, temp, m1._tail);
+        return *this;
+    }
     return *this;
     /*copy monom start*/
     /*copy monom end*/
@@ -848,6 +828,57 @@ bool circlelist::Monom::EQUAL(const Monom & m2) const
     if(this == &m2) //Если адреса равны, то мн-ва эквивалентны
         return true;
     return equal(_tail, m2._tail);
+}
+
+
+circlelist::node * circlelist::Monom::union_check_tail(node * tail, node * tail1, node * temp2, node * tail2)
+{
+    while (temp2 != tail2)
+    {
+        if(tail1 -> data == temp2 -> data)
+        {
+            break;
+        }
+        if(tail1 -> data < temp2 -> data)
+        {
+            tail = addWithCheck(tail1 -> data, tail);
+            temp2 = temp2 -> next;
+            break;
+        }
+        tail = addWithCheck(temp2 -> data, tail);
+        temp2 = temp2 -> next;
+    }
+    while (temp2 != tail2)
+    {
+        tail = addToEnd(temp2 -> data, tail);
+        temp2 = temp2 -> next;
+    }
+    if(tail2 < tail1)
+    {
+        tail = addWithCheck(tail2 -> data, tail);
+        tail = addToEnd(tail1 -> data, tail);
+    }
+    tail = addWithCheck(tail2 -> data, tail);
+    return tail;
+    //check tails
+}
+
+circlelist::node * circlelist::Monom::union_check_two_tails(node * tail, node * tail1, node * tail2)
+{
+    if(tail1 -> data > tail2 -> data)
+    {
+        tail = addWithCheck(tail2 -> data, tail);
+        tail = addToEnd(tail1 -> data, tail);
+        return tail;
+    }
+    if(tail1 -> data < tail2 -> data)
+    {
+        tail = addWithCheck(tail1 -> data, tail);
+        tail = addToEnd(tail2 -> data, tail);
+        return tail;
+    }
+    tail = addWithCheck(tail1 -> data, tail);
+    return tail;
 }
 
 bool circlelist::Monom::equal(node * tail, node * m2_tail) const
