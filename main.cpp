@@ -3,7 +3,7 @@
 //
 
 #include "Monom.h"
-using namespace circlelist;
+using namespace slinkedlist;
 
 int main()
 {
@@ -28,7 +28,7 @@ int main()
 
     A.PRINT();
     B.PRINT();
-    C.UNION(A, B).PRINT();
+    C.DIFFERENCE(B, A).PRINT();
     std::cout << "member(1): " << A.MEMBER(1) << std::endl;
     std::cout << "member(5): " << A.MEMBER(5) << std::endl;
     std::cout << "member(12): " << A.MEMBER(12) << std::endl;

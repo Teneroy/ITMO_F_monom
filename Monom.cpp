@@ -1743,20 +1743,25 @@ slinkedlist::node * slinkedlist::Monom::intersection_private(node * head, node *
 
 slinkedlist::node * slinkedlist::Monom::difference_private(node * m1_head, node * m2_head)
 {
-    node * temp = m2_head;
-    node * head = new node(m1_head -> data, nullptr);//Копируем множество m1 в текущее
-    addMonom(head, m1_head -> next);//Копируем множество m1 в текущее
+    node * temp = m1_head;
+    node * temp2 = m2_head;
+    node * head = nullptr;
+    node * l_el = nullptr;
     while (temp != nullptr)
     {
-        if(head -> data == temp -> data) //Если значения головы m1 совпадают с текущим значением
+        if(temp -> data != m2_head -> data)
         {
-            head = deleteHead(head); //Удаляем голову
-        } else
-        {
-            node * prev = findPrevEl(temp -> data, head); //Ищем значение в искомом множестве
-            if(prev != nullptr) //Если нашли повторяющееся значение
+            if(!findPrevEl(temp -> data, m2_head))
             {
-                head = deleteEl(head, prev); //Удаляем элемент
+                if(head == nullptr)
+                {
+                    head = new node(temp -> data, nullptr);
+                    l_el = head;
+                } else
+                {
+                    l_el -> next = new node(temp -> data, nullptr);
+                    l_el = l_el -> next;
+                }
             }
         }
         temp = temp -> next;
