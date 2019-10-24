@@ -60,7 +60,8 @@ void bitset::Monom::DELETE(elem_t x)
         real_pos = (x >= 0) ? ((getMinAbs(_max, _min) + 1) + pos) : ((getMinAbs(_max, _min) + 1) - (++pos));
        // std::cout << "real_pos: " << real_pos << std::endl;
        // std::cout << "getMinAbs: " << ((getMinAbs(_max, _min) + 1) - pos) << std::endl;
-        val = (x >= 0) ? ((((pos + 1) * INT_SIZE) - 1) - x - ((pos - 1) * INT_SIZE)) : (INT_SIZE - ((((pos) * INT_SIZE)) - abs_x) - 1);
+        val = (x >= 0) ? ((((pos + 1) * INT_SIZE) - 1) - x - 
+                          ((pos - 1) * INT_SIZE)) : (INT_SIZE - ((((pos) * INT_SIZE)) - abs_x) - 1);
     } else if(_max < 0)
     {
         real_pos = getMaxAbs(_max, _min) - pos;
